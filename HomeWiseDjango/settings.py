@@ -31,6 +31,15 @@ ALLOWED_HOSTS = [
     'localhost'
 ]
 
+# HTTPS/SSL Settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# HSTS Settings
+SECURE_HSTS_SECONDS = 3600
+
 
 # Application definition
 
