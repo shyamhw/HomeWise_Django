@@ -3,11 +3,12 @@ branch-defaults:
     environment: null
     group_suffix: null
   master:
-    environment: django-env
+    environment: homewise-django-dev
+    group_suffix: null
 global:
   application_name: homewise-django
   branch: null
-  default_ec2_keyname: null
+  default_ec2_keyname: homewise_instance_keypair
   default_platform: python-3.6
   default_region: us-east-1
   include_git_submodules: true
