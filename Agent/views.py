@@ -77,8 +77,8 @@ class AgentLogin(APIView):
         if mls_agent.temp_password:
             ## Redirect to change password view
             return Response("please change your temporary password", status=status.HTTP_400_BAD_REQUEST)
-        auth = ('bsmGZkrbEQr1lHnweZS5n7fHFZ9a33yvqkYgB7hh',
-                'R3plhqTD8gdbxm16HoayALqKb3mccpGI7KNWn3gxEVgsjzq3j6UtLt6kTP0mZrJ8ihz2t7B242WxWM5Yc049jyofULBpJ98heCtiZtMQHdQqmpGNTpZ3iDSxhqxkvvwB')
+        auth = (settings.OAUTH2_CLIENT_ID_AGENTS,
+                settings.OAUTH2_CLIENT_SECRET_AGENTS)
         print(auth)
         response = requests.post(settings.REDIRECT_URL + 'o/token/',
                                  data={'username': mls_agent.email, 'password': password, 'grant_type': 'password'},

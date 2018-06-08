@@ -160,3 +160,7 @@ REST_FRAMEWORK = {
     #     'rest_framework.permissions.IsAuthenticated',
     # )
 }
+
+# Agents API Application Settings
+OAUTH2_CLIENT_ID_AGENTS = 'MG9MbcXQtsKfqAcGzQzkq1PAYw9Ga3kMJ8Vxjqmj'
+OAUTH2_CLIENT_SECRET_AGENTS = '2wpVS20AGD8muM5iaFkrl2lnPzo44C3mlCqpvReqOrNAZutYQxlX6C2C5K8RZnqUWuYytbLotzEtBzOnbseY7oirVgL5rRwSZrHdsiI36kl2y5IRCI0sqK7J5IIsGssZ'

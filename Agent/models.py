@@ -79,10 +79,12 @@ class Agent(AbstractBaseUser):
         """
 
         self.set_password(new_password)
-        self.save()
 
         ## Clear temporary password status
-        temp_password = False
+        self.temp_password = False
+
+        ## Save user model
+        self.save()
 
         ## TODO: Revoke all issued OAuth2 Tokens
 

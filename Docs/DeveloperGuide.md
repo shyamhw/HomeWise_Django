@@ -2,21 +2,22 @@
 
 ## Source Code Overview
 
-		git repository contains:
-			.ebextensions
-				django.config
-				db-migrate.config
-			.elasticbeanstalk
-				config.yml
-			Agent
-				...
-			HomeWiseDjango
-				...
-				settings.py
-				local_settings.py
-			.gitignore
-			manage.py
-			requirements.txt
+git repository contains:
+
+		.ebextensions
+			django.config
+			db-migrate.config
+		.elasticbeanstalk
+			config.yml
+		Agent
+			...
+		HomeWiseDjango
+			...
+			settings.py
+			local_settings.py
+		.gitignore
+		manage.py
+		requirements.txt
 
 `.ebextensions/django.config`
 	[Option settings](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/ebextensions-optionsettings.html) to set `DJANGO_SETTING_MODULE` environment variable during deployment, as well as path to application - the wsgi file.
@@ -35,6 +36,8 @@
 		DATABASES uses PostgreSQL on AWS
 		TIME_ZONE synced with AWS Region
 		SECRET_KEY set in environment variables
+		OAUTH2_CLIENT_ID_AGENTS
+		OAUTH2_CLIENT_SECRET_AGENTS
 
 `HomeWiseDjango/local_settings.py`
 	Django settings file for *development*.
@@ -44,6 +47,8 @@
 		DATABASES uses sqlite
 		TIME_ZONE set to UTC
 		SECRET_KEY hardcoded in file
+		OAUTH2_CLIENT_ID_AGENTS
+		OAUTH2_CLIENT_SECRET_AGENTS
 
 `requirements.txt`
 	Contains python package dependencies.
