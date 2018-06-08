@@ -94,7 +94,6 @@ class AgentLogin(APIView):
         if auth_response.ok:
             print("here")
             client_response = auth_response.json()
-            logger.setLevel(logging.DEBUG)
             logger.info('Login OAUTH2 successful: ' + str(auth_response.json()))
             data = {
                 "token_type": "Bearer",
@@ -102,7 +101,6 @@ class AgentLogin(APIView):
                 "email": email,
             }
             return Response(data, status=status.HTTP_200_OK)
-        #logger.setLevel(logging.ERROR)
         logger.info('Login OAUTH2 Error: ' + str(auth_response.json()))
         return Response("nah fam",
                         status=status.HTTP_400_BAD_REQUEST)
