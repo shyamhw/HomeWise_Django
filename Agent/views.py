@@ -80,7 +80,7 @@ class AgentLogin(APIView):
         auth = ('bsmGZkrbEQr1lHnweZS5n7fHFZ9a33yvqkYgB7hh',
                 'R3plhqTD8gdbxm16HoayALqKb3mccpGI7KNWn3gxEVgsjzq3j6UtLt6kTP0mZrJ8ihz2t7B242WxWM5Yc049jyofULBpJ98heCtiZtMQHdQqmpGNTpZ3iDSxhqxkvvwB')
         print(auth)
-        response = requests.post('http://127.0.0.1:8000/' + 'o/token/',
+        response = requests.post(settings.REDIRECT_URL + 'o/token/',
                                  data={'username': mls_agent.email, 'password': password, 'grant_type': 'password'},
                                  auth=auth)
         print(response.json())
