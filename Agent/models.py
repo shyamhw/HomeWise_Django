@@ -1,9 +1,14 @@
 from django.db import models
 
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager
+
+from django.utils import crypto
 
 from django.conf import settings
 from datetime import datetime
+
+from django.core.mail import BadHeaderError, send_mail
 
 from . import manager
 
@@ -21,6 +26,8 @@ class Agent(AbstractBaseUser):
     last_name = models.CharField(max_length=100, null=True, blank=True)
     mls_region = models.CharField(max_length=254, null=True, blank=True)
     mls_id = models.CharField(max_length=100, null=True, blank=True)
+
+    temp_password = models.BooleanField(default=False)
 
     objects = manager.CustomUserManager()
 
@@ -46,6 +53,39 @@ class Agent(AbstractBaseUser):
         """
         Dummy compulsory method as the base class is AbstractBaseUser
         """
+        return True
+
+    def reset_password(self):
+        """
+        Reset password to generated temp password
+        """
+
+        gen_password = crypto.get_random_string()
+        print("New password: " + gen_password)
+        try:
+            send_mail("Reset Password - HomeWise", "Here is your newly generated temporary password: " + gen_password, "visrut@protonmail.ch", [self.email])
+        except:
+            return False
+        self.set_password(gen_password)
+        self.temp_password = True
+        self.save()
+        print(self.password)
+
+        return True
+
+    def set_new_password(self, new_password):
+        """
+        Set password to new password
+        """
+
+        self.set_password(new_password)
+        self.save()
+
+        ## Clear temporary password status
+        temp_password = False
+
+        ## TODO: Revoke all issued OAuth2 Tokens
+
         return True
 
 

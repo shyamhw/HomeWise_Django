@@ -99,6 +99,13 @@ DATABASES = {
     }
 }
 
+# Email Settings
+EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
+EMAIL_HOST_USER = os.environ[SES_USER]
+EMAIL_HOST_PASSWORD = os.environ[SES_PASSWORD]
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

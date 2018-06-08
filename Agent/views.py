@@ -73,6 +73,10 @@ class AgentLogin(APIView):
         print(is_password_correct)
         if not is_password_correct:
             return Response("wrong password", status=status.HTTP_400_BAD_REQUEST)
+        ## Check if user has a temporary password
+        if mls_agent.temp_password:
+            ## Redirect to change password view
+            return Response("please change your temporary password", status=status.HTTP_400_BAD_REQUEST)
         auth = ('bsmGZkrbEQr1lHnweZS5n7fHFZ9a33yvqkYgB7hh',
                 'R3plhqTD8gdbxm16HoayALqKb3mccpGI7KNWn3gxEVgsjzq3j6UtLt6kTP0mZrJ8ihz2t7B242WxWM5Yc049jyofULBpJ98heCtiZtMQHdQqmpGNTpZ3iDSxhqxkvvwB')
         print(auth)
@@ -92,7 +96,57 @@ class AgentLogin(APIView):
         return Response("nah fam",
                         status=status.HTTP_400_BAD_REQUEST)
 
+class AgentChangePassword(APIView):
+    """ API to change password of Agent """
 
+    def post(self, request):
+        """
+        :param email: email address of agent
+        :param current_password: current/temporary password
+        :param new_password: new password to set
+        :return result of password change
+        """
+
+        mls_agent = Agent.objects.get(email=request.data.get('email'))
+        
+        if not mls_agent:
+            return Response("not agent", status=status.HTTP_404_NOT_FOUND)
+
+        is_password_correct = mls_agent.check_password(request.data.get('current_password'))
+
+        if not is_password_correct:
+            return Response("Incorrect password", status=status.HTTP_400_BAD_REQUEST)
+
+        ## Set new password
+        result = mls_agent.set_new_password(request.data.get('new_password'))
+
+        if result:
+            return Response("successfully changed password", status=status.HTTP_200_OK)
+
+        return Response("error", status=status.HTTP_400_BAD_REQUEST)
+        
+
+class AgentForgotPassword(APIView):
+    """ API to recover password """
+
+    def post(self, request):
+        """
+        :param email:  email for agent account
+        :return success message if reset complete else error message:
+        """
+
+        email = request.data.get('email')
+        mls_agent = Agent.objects.get(email=email)
+        if not mls_agent:
+            return Response("not agent", status=status.HTTP_404_NOT_FOUND)
+
+        ## Reset password
+        result = mls_agent.reset_password()
+
+        if result:
+            return Response("successfully reset password", status=status.HTTP_200_OK)
+        else:
+            return Response("error", status=status.HTTP_400_BAD_REQUEST)
 
 class SingleAgent(APIView):
 
