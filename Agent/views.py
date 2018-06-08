@@ -15,6 +15,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
+import logging
+
 import requests
 from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 
@@ -80,19 +82,26 @@ class AgentLogin(APIView):
         auth = (settings.OAUTH2_CLIENT_ID_AGENTS,
                 settings.OAUTH2_CLIENT_SECRET_AGENTS)
         print(auth)
-        response = requests.post(settings.REDIRECT_URL + 'o/token/',
+        auth_response = requests.post(settings.REDIRECT_URL + 'o/token/',
                                  data={'username': mls_agent.email, 'password': password, 'grant_type': 'password'},
                                  auth=auth)
-        print(response.json())
-        if response.ok:
+        print(auth_response.json())
+        if auth_response.ok:
             print("here")
-            response = response.json()
+            client_response = auth_response.json()
+            logger = logging.getLogger('django')
+            logger.setLevel(logging.DEBUG)
+            logger.info('Login OAUTH2 successful: ' + str(auth_response.json()))
             data = {
                 "token_type": "Bearer",
-                "access_token": response.get('access_token'),
+                "access_token": client_response.get('access_token'),
                 "email": email,
             }
             return Response(data, status=status.HTTP_200_OK)
+        else:
+            logger = logging.getLogger('django')
+            logger.setLevel(logging.ERROR)
+            logger.info('Login OAUTH2 Error: ' + str(auth_response.json()))
         return Response("nah fam",
                         status=status.HTTP_400_BAD_REQUEST)
 
