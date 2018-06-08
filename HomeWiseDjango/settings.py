@@ -164,3 +164,23 @@ REST_FRAMEWORK = {
 # Agents API Application Settings
 OAUTH2_CLIENT_ID_AGENTS = 'MG9MbcXQtsKfqAcGzQzkq1PAYw9Ga3kMJ8Vxjqmj'
 OAUTH2_CLIENT_SECRET_AGENTS = '2wpVS20AGD8muM5iaFkrl2lnPzo44C3mlCqpvReqOrNAZutYQxlX6C2C5K8RZnqUWuYytbLotzEtBzOnbseY7oirVgL5rRwSZrHdsiI36kl2y5IRCI0sqK7J5IIsGssZ'
+
+# Django App Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/app_logs/django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
