@@ -65,6 +65,11 @@ class AgentLogin(APIView):
         :return access token if login successful else error message:
         """
 
+        logger = logging.getLogger('django')
+
+        logger.setLevel(logging.DEBUG)
+        logger.info('Login Flow Initiated')
+
         email = request.data.get('email')
         password = request.data.get('password')
         mls_agent = Agent.objects.get(email=email)
@@ -89,7 +94,6 @@ class AgentLogin(APIView):
         if auth_response.ok:
             print("here")
             client_response = auth_response.json()
-            logger = logging.getLogger('django')
             logger.setLevel(logging.DEBUG)
             logger.info('Login OAUTH2 successful: ' + str(auth_response.json()))
             data = {
@@ -99,7 +103,6 @@ class AgentLogin(APIView):
             }
             return Response(data, status=status.HTTP_200_OK)
         else:
-            logger = logging.getLogger('django')
             logger.setLevel(logging.ERROR)
             logger.info('Login OAUTH2 Error: ' + str(auth_response.json()))
         return Response("nah fam",
