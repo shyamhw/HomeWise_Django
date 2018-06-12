@@ -109,6 +109,8 @@ EMAIL_HOST_PASSWORD = os.environ['SES_PASSWORD']
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+EMAIL_FROM_ADDRESS = 'visrut@protonmail.ch'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

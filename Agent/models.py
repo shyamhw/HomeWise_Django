@@ -12,6 +12,10 @@ from django.core.mail import BadHeaderError, send_mail
 
 from . import manager
 
+import logging
+
+from smtplib import SMTPException
+
 # Create your models here.
 class Agent(AbstractBaseUser):
     email = models.CharField(max_length=254, unique=True)
@@ -62,9 +66,13 @@ class Agent(AbstractBaseUser):
 
         gen_password = crypto.get_random_string()
         print("New password: " + gen_password)
+        logger = logging.getLogger('django')
+        logger.setLevel(logging.DEBUG)
         try:
-            send_mail("Reset Password - HomeWise", "Here is your newly generated temporary password: " + gen_password, "visrut@protonmail.ch", [self.email])
-        except:
+            send_mail("Reset Password - HomeWise", "Here is your newly generated temporary password: " + gen_password, settings.EMAIL_FROM_ADDRESS, [self.email])
+            logger.info("SendMail successful!")
+        except SMTPException as e:
+            logger.info("SendMail Error: " + str(e))
             return False
         self.set_password(gen_password)
         self.temp_password = True
