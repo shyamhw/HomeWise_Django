@@ -23,6 +23,10 @@ from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 from django.conf import settings
 
 
+## Standard errors
+agentDNE = {'code': 0, 'message': 'No agent exists with this email address.'}
+agentBadPassword = {'code': 1, 'message': 'Incorrect password.'}
+agentTempPassword = {'code': 2, 'message': 'Agent has temporary password. Must change password immediately.'}
 
 class AgentsList(APIView):
     serializer_class = AgentSerializer
@@ -72,18 +76,19 @@ class AgentLogin(APIView):
 
         email = request.data.get('email')
         password = request.data.get('password')
-        mls_agent = Agent.objects.get(email=email)
-        print(mls_agent.email)
-        if not mls_agent:
-            return Response("not agent", status=status.HTTP_404_NOT_FOUND)
+        try:
+            mls_agent = Agent.objects.get(email=email)
+        except Exception as e:
+            return Response(agentDNE, status=status.HTTP_404_NOT_FOUND)
+            
         is_password_correct = mls_agent.check_password(password)
         print(is_password_correct)
         if not is_password_correct:
-            return Response("wrong password", status=status.HTTP_400_BAD_REQUEST)
+            return Response(agentBadPassword, status=status.HTTP_400_BAD_REQUEST)
         ## Check if user has a temporary password
         if mls_agent.temp_password:
             ## Redirect to change password view
-            return Response("please change your temporary password", status=status.HTTP_400_BAD_REQUEST)
+            return Response(agentTempPassword, status=status.HTTP_400_BAD_REQUEST)
         auth = (settings.OAUTH2_CLIENT_ID_AGENTS,
                 settings.OAUTH2_CLIENT_SECRET_AGENTS)
         print(auth)
