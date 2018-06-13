@@ -37,45 +37,51 @@ class AgentsList(APIView):
 
 class AgentRegister(APIView):
     """
-    Register a new user.
+    Register new Agent user object.
+    :param email: email for Agent
+    :param password: password for Agent
+    :param mls_region: MLS region of Agent
+    :param mls_id: MLS ID of Agent
+    :param first_name: First Name (Optional)
+    :param last_name: Last Name (Optional)
+    :param date_joined: Date of creation / request (Optional)
+    :return Serialized Agent object on successful creation, else serializer error on failure
     """
     serializer_class = AgentSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        print("hi")
         if serializer.is_valid():
             serializer.save()
-            print("bye")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        print("sup")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AgentLogin(APIView):
-    """API to login agent"""
+    """
+    Authenticate Agent user to use API
+    :param mls_id:  mls id for Agent
+    :param region_id: region id for Agent
+    :param password: password entered by Agent
+    :return access token if login successful else error message:
+    """
 
     def post(self, request):
-        """
-        :param mls_id:  mls id for agent
-        :param region_id: region id for agent
-        :param password: password entered by agent
-        :return access token if login successful else error message:
-        """
 
+        ## DEBUG CODE
         logger = logging.getLogger('django')
-
         logger.setLevel(logging.DEBUG)
         logger.info('Login Flow Initiated')
 
         email = request.data.get('email')
-        password = request.data.get('password')
         mls_agent = Agent.objects.get(email=email)
-        print(mls_agent.email)
+
         if not mls_agent:
-            return Response("not agent", status=status.HTTP_404_NOT_FOUND)
+            return Response("No Agent found with this email", status=status.HTTP_404_NOT_FOUND)
+
+        password = request.data.get('password')
         is_password_correct = mls_agent.check_password(password)
         print(is_password_correct)
         if not is_password_correct:
