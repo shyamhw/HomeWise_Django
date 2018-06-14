@@ -22,6 +22,9 @@ from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 
 from django.conf import settings
 
+from datetime import datetime
+import datetime as dt
+
 
 ## Standard errors
 agentDNE = {'code': 0, 'message': 'No agent exists with this email address.'}
@@ -172,26 +175,30 @@ class SingleAgent(APIView):
             return Response("Not an Agent", status=status.HTTP_400_BAD_REQUEST)
 
 
-class SingleClient(APIView):
+class GetClient(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = [OAuth2Authentication]
 
-    def get(self, request):
+    def post(self, request):
         agent = request.user
-        email = request.GET.get('email')
-        client_type = request.GET.get('client_type')
-        try:
-            client = agent.client_set.filter(email=email, client_type=client_type)
-            print(client.first_name)
-            serializer = ClientSerializer(client)
-            print(serializer.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
+        email = request.data.get('email')
+        client_type = request.data.get('client_type')
+
+        client = agent.client_set.filter(client_type=client_type).filter(email=email)
+
+        serializer = ClientSerializer(client, many=True)
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AddClient(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
 
 
     def post(self, request):
         serializer = ClientSerializer(data=request.data)
+        agent_email = request.user.email
 
         if serializer.is_valid():
             email = request.data.get('email')
@@ -205,6 +212,24 @@ class SingleClient(APIView):
             zipcode = request.data.get('zipcode')
             est_price = request.data.get('est_price')
             commission = request.data.get('commission')
+            commission_val = est_price * (commission/100)
+            print(commission_val)
+            if(client_type == 'B'):
+                print('bbbb')
+                total_steps = 15
+            else:
+                print('cccc')
+                total_steps = 15
+            print(total_steps)
+            steps_complete = 0
+            print(steps_complete)
+            steps_percentage = (steps_complete/total_steps) * 100
+            print(steps_percentage)
+            d = dt.date.today()
+            today = d.strftime("%Y-%m-%d")
+
+
+
             agent = request.user
             print(agent)
             client = agent.client_set.filter(email=email, client_type=client_type)
@@ -213,68 +238,149 @@ class SingleClient(APIView):
                 return Response("Already a Client", status=status.HTTP_400_BAD_REQUEST)
 
             c = Client(email=email, first_name=first_name, last_name=last_name, phone_number=phone_number,
-                       client_type = client_type, address=address, city=city, state=state, zipcode=zipcode, est_price=est_price,
-                       commission=commission, agent=agent)
+                       client_type=client_type, address=address, city=city, state=state, zipcode=zipcode, est_price=est_price,
+                       commission=commission, commission_val=commission_val, total_steps=total_steps,
+                       steps_complete=steps_complete, steps_percentage=steps_percentage, agent=agent)
             c.save()
 
             if(client_type == 'B'):
-                step_one = Step(client=c, ordering=1, name="Step One", complete=False)
-                step_two = Step(client=c, ordering=1, name="Step Two", complete=False)
-                step_three = Step(client=c, ordering=1, name="Step Three", complete=False)
-                step_four = Step(client=c, ordering=1, name="Step Four", complete=False)
-                step_five = Step(client=c, ordering=1, name="Step Five", complete=False)
+                print('hi')
+                step_one = Step(client=c, ordering=1, name="Set an appointment", complete=False,
+                                agent_email=agent_email, date=today)
+                step_two = Step(client=c, ordering=1, name="Sign buyer’s agreement contract", complete=False,
+                                agent_email=agent_email, date=today)
+                step_three = Step(client=c, ordering=1, name="Set client up on MLS", complete=False,
+                                  agent_email=agent_email, date=today)
+                step_four = Step(client=c, ordering=1, name="Confirm mortgage pre-approval", complete=False,
+                                 agent_email=agent_email, date=today)
+                step_five = Step(client=c, ordering=1, name="Create buyer’s tour reports for showings", complete=False,
+                                 agent_email=agent_email, date=today)
+                step_six = Step(client=c, ordering=1, name="Show preferred houses to client", complete=False,
+                                agent_email=agent_email, date=today)
+                step_seven = Step(client=c, ordering=1, name="Create CMA report for interested properties",
+                                  complete=False, agent_email=agent_email, date=today)
+                step_eight = Step(client=c, ordering=1, name="Prepare offer documents", complete=False,
+                                  agent_email=agent_email, date=today)
+                step_nine = Step(client=c, ordering=1, name="Offer accepted", complete=False, agent_email=agent_email, date=today)
+                step_ten = Step(client=c, ordering=1, name="Deposit", complete=False, agent_email=agent_email, date=today)
+                step_eleven = Step(client=c, ordering=1, name="Inspections deadline", complete=False,
+                                   agent_email=agent_email, date=today)
+                step_twelve = Step(client=c, ordering=1, name="Appraisal deadline", complete=False,
+                                   agent_email=agent_email, date=today)
+                step_thirteen = Step(client=c, ordering=1, name="Loan deadline ", complete=False,
+                                     agent_email=agent_email, date=today)
+                step_fourteen = Step(client=c, ordering=1, name="Final walkthrough", complete=False,
+                                     agent_email=agent_email, date=today)
+                step_fifteen = Step(client=c, ordering=1, name="Closing day", complete=False, agent_email=agent_email, date=today)
                 step_one.save()
                 step_two.save()
                 step_three.save()
                 step_four.save()
                 step_five.save()
+                step_six.save()
+                step_seven.save()
+                step_eight.save()
+                step_nine.save()
+                step_ten.save()
+                step_eleven.save()
+                step_twelve.save()
+                step_thirteen.save()
+                step_fourteen.save()
+                step_fifteen.save()
             else:
-                step_one = Step(client=c, ordering=1, name="Step OneS", complete=False)
-                step_two = Step(client=c, ordering=1, name="Step TwoS", complete=False)
-                step_three = Step(client=c, ordering=1, name="Step ThreeS", complete=False)
-                step_four = Step(client=c, ordering=1, name="Step FourS", complete=False)
-                step_five = Step(client=c, ordering=1, name="Step FiveS", complete=False)
+                print('bye')
+                step_one = Step(client=c, ordering=1, name="Set an appointment", complete=False,
+                                agent_email=agent_email, date=today)
+                step_two = Step(client=c, ordering=1, name="Create CMA report", complete=False, agent_email=agent_email, date=today)
+                step_three = Step(client=c, ordering=1, name="Create marketing plan", complete=False,
+                                  agent_email=agent_email, date=today)
+                step_four = Step(client=c, ordering=1, name="Take notes at client’s house", complete=False,
+                                 agent_email=agent_email, date=today)
+                step_five = Step(client=c, ordering=1, name="Create updated CMA report", complete=False,
+                                 agent_email=agent_email, date=today)
+                step_six = Step(client=c, ordering=1, name="Confirm staging", complete=False, agent_email=agent_email, date=today)
+                step_seven = Step(client=c, ordering=1, name="Arrange photo shoot", complete=False,
+                                  agent_email=agent_email, date=today)
+                step_eight = Step(client=c, ordering=1, name="List the property", complete=False,
+                                  agent_email=agent_email, date=today)
+                step_nine = Step(client=c, ordering=1, name="Open house", complete=False, agent_email=agent_email, date=today)
+                step_ten = Step(client=c, ordering=1, name="Offer deadline", complete=False, agent_email=agent_email, date=today)
+                step_eleven = Step(client=c, ordering=1, name="Offer accepted", complete=False, agent_email=agent_email, date=today)
+                step_twelve = Step(client=c, ordering=1, name="Inspections deadline", complete=False,
+                                   agent_email=agent_email, date=today)
+                step_thirteen = Step(client=c, ordering=1, name="Reply to inspections deadline ", complete=False,
+                                     agent_email=agent_email, date=today)
+                step_fourteen = Step(client=c, ordering=1, name="Loan deadline", complete=False,
+                                     agent_email=agent_email, date=today)
+                step_fifteen = Step(client=c, ordering=1, name="Closing day", complete=False, agent_email=agent_email, date=today)
                 step_one.save()
                 step_two.save()
                 step_three.save()
                 step_four.save()
                 step_five.save()
+                step_six.save()
+                step_seven.save()
+                step_eight.save()
+                step_nine.save()
+                step_ten.save()
+                step_eleven.save()
+                step_twelve.save()
+                step_thirteen.save()
+                step_fourteen.save()
+                step_fifteen.save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-
-class ClientSteps(APIView):
+class UpcomingSteps(APIView):
 
     def get(self, request):
         agent = request.user
-        email = request.GET.get('email')
-        client_type = request.GET.get('client_type')
 
-        try:
-            client = agent.client_set.filter(email=email, client_type=client_type)
-        except:
-            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
-
-        steps = client.step_set.all()
+        agent_email = agent.email
+        today = dt.date.today()
+        end_date = today + dt.timedelta(5)
+        steps = Step.objects.filter(date__range=[today, end_date]).filter(agent_email=agent_email).filter(complete=False)
+        print(steps)
 
         serializer = StepSerializer(steps, many=True)
+        print(serializer.data)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UpdateStep(APIView):
+
+class ClientSteps(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
-        serializer = ClientSerializer(data=request.data)
+        agent = request.user
+        email = request.data.get('email')
+        client_type = request.data.get('client_type')
+
+        try:
+            clients = agent.client_set.filter(email=email, client_type=client_type)
+        except:
+            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
+        client = clients[0]
+        steps = client.step_set.all().order_by('date')
+
+        serializer = StepSerializer(steps, many=True)
+        print('hi')
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
 
 class RemoveClient(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
         agent = request.user
-        email = request.GET.get('email')
-        client_type = request.GET.get('client_type')
+        email = request.data.get('email')
+        client_type = request.data.get('client_type')
 
         try:
             client = agent.client_set.filter(email=email, client_type=client_type)
@@ -307,45 +413,95 @@ class ClientList(APIView):
 
 
 
-class AgentClientList(APIView):
-
-    def get(self, request):
-        mls_region = request.GET.get('mls_region')
-        mls_id = request.GET.get('mls_id')
-
-        try:
-            agent = Agent.objects.get(mls_region=mls_region, mls_id=mls_id)
-        except Agent.DoesNotExist:
-            return Response("ay", status=status.HTTP_400_BAD_REQUEST)
-
-        clients = agent.clients
-        serializer = ClientSerializer(clients, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class UpdateSteps(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
-        mls_region = request.data.get('agent_mls_region')
-        mls_id = request.data.get('agent_mls_id')
-        email = request.data.get('email')
-        client_type = request.data.get('client_type')
+        agent = request.user
+        print(agent)
+        steps = request.data.get('steps')
+        steps_deleted = request.data.get('steps_deleted')
+        id = request.data.get('id')
+        steps_complete = request.data.get('steps_complete')
+        steps_percentage = request.data.get('steps_percentage')
+        total_steps = request.data.get('total_steps')
 
-        serializer = ClientSerializer(data=request.data)
-        # print(request.data)
-        if serializer.is_valid():
-            serializer.save()
 
         try:
-            agent = Agent.objects.get(mls_region=mls_region, mls_id=mls_id)
-        except Agent.DoesNotExist:
-            return Response("tru", status=status.HTTP_400_BAD_REQUEST)
+            client = Client.objects.get(id=id)
+        except:
+            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
+        client.steps_complete = steps_complete
+        client.steps_percentage = steps_percentage
+        client.total_steps = total_steps
+        client.save()
+        print(steps_percentage)
+        print('steps deleted')
+        print(steps_deleted)
+        for x in steps_deleted:
+            print(x)
+            id=x["id"]
+            print('id')
+            print(id)
+            step = Step.objects.get(id=id)
+            print('here')
+            step.delete()
 
-        client = Client.objects.get(agent_mls_region=mls_region, agent_mls_id=mls_id, email=email, client_type=client_type)
 
-        agent.clients.add(client)
-        agent.save()
-        s = AgentSerializer(agent)
+        for x in steps:
+            print('this step')
+            print(x)
+            id=x["id"]
+            complete = x["complete"]
+            name = x["name"]
+            newdate = x["date"]
+            date = datetime.strptime(newdate, '%m/%d/%Y')
+            print(name)
+            print(newdate)
+            print(date)
 
-        return Response(s.data, status=status.HTTP_200_OK)
+            step = Step.objects.get(id=id)
+            step.complete = complete
+            step.name = name
+            step.date = date
+            step.save()
 
+        return Response("leggo", status=status.HTTP_200_OK)
+
+class AddStep(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        agent = request.user
+        print(agent)
+        agent_email = agent.email
+        id = request.data.get('id')
+        newStepName = request.data.get('newStepName')
+        newStepDate = request.data.get('newStepDate')
+        total_steps = request.data.get('total_steps')
+        steps_percentage = request.data.get('steps_percentage')
+        date = datetime.strptime(newStepDate, '%m/%d/%Y')
+
+
+        try:
+            client = Client.objects.get(id=id)
+        except:
+            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
+        client.total_steps = total_steps
+        client.steps_percentage = steps_percentage
+        client.save()
+
+        try:
+            c = Client.objects.get(id=id)
+        except:
+            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
+
+        step = Step(client=c, ordering=1, name=newStepName, complete=False, agent_email=agent_email, date=date)
+        step.save()
+
+        return Response("added", status=status.HTTP_200_OK)
 
 
 

@@ -9,8 +9,13 @@ urlpatterns = [
     url(r'^ChangePassword/', views.AgentChangePassword.as_view(), name='change_password'),
     url(r'^Agents/?', views.AgentsList.as_view()),
     url(r'^Agent/', views.SingleAgent.as_view()),
-    url(r'^Client/', views.SingleClient.as_view()),
+    url(r'^AddClient/', views.AddClient.as_view()),
+    url(r'^GetClient/', views.GetClient.as_view()),
     url(r'^Clients/?', views.ClientList.as_view()),
+    url(r'^UpcomingSteps/', views.UpcomingSteps.as_view()),
+    url(r'^ClientSteps/', views.ClientSteps.as_view()),
+    url(r'^UpdateSteps/', views.UpdateSteps.as_view()),
+    url(r'^AddStep/', views.AddStep.as_view()),
 
 ]
 

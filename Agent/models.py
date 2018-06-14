@@ -30,6 +30,7 @@ class Agent(AbstractBaseUser):
     last_name = models.CharField(max_length=100, null=True, blank=True)
     mls_region = models.CharField(max_length=254, null=True, blank=True)
     mls_id = models.CharField(max_length=100, null=True, blank=True)
+    birthday = models.DateField(null=True, blank=True)
 
     temp_password = models.BooleanField(default=False)
 
@@ -112,6 +113,10 @@ class Client(models.Model):
     zipcode = models.CharField(max_length=5, null=True, blank=True)
     est_price = models.FloatField('est price', max_length=20, blank=True, null=True)
     commission = models.FloatField('commission', max_length=3, blank=True, null=True)
+    commission_val = models.FloatField('commission val', max_length=20, blank=True, null=True)
+    total_steps = models.IntegerField('total steps', null=True, blank=True)
+    steps_complete = models.IntegerField('steps complete', null=True, blank=True)
+    steps_percentage = models.FloatField('steps_percentage', max_length=20, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -122,9 +127,9 @@ class Step(models.Model):
     ordering = models.IntegerField('ordering', null=True, blank=True)
     name = models.CharField(max_length=30, null=True, blank=True)
     complete = models.BooleanField(default=False)
-    date = models.DateField(blank=True, null=True)
+    agent_email = models.CharField(max_length=254, null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
 
     class Meta:
-        ordering = ('ordering',)
-
+        ordering = ('date',)
 
