@@ -126,6 +126,7 @@ class Step(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     ordering = models.IntegerField('ordering', null=True, blank=True)
     name = models.CharField(max_length=60, null=True, blank=True)
+    longname = models.CharField(max_length=60, null=True, blank=True)
     complete = models.BooleanField(default=False)
     agent_email = models.CharField(max_length=254, null=True, blank=True)
     date = models.DateField(null=True, blank=True)
