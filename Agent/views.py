@@ -212,7 +212,7 @@ class AddClient(APIView):
             zipcode = request.data.get('zipcode')
             est_price = request.data.get('est_price')
             est_price = int(est_price)
-            print('Est price: ' + est_price)
+            print('Est price: ' + str(est_price))
             commission = request.data.get('commission')
             commission_val = est_price * (int(commission)/100)
             print(commission_val)
