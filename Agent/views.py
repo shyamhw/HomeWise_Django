@@ -212,7 +212,7 @@ class AddClient(APIView):
             zipcode = request.data.get('zipcode')
             est_price = request.data.get('est_price')
             commission = request.data.get('commission')
-            commission_val = est_price * (commission/100)
+            commission_val = est_price * (int(commission)/100)
             print(commission_val)
             if(client_type == 'B'):
                 print('bbbb')
