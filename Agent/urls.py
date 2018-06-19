@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^ForgotPassword/', views.AgentForgotPassword.as_view(), name='forgot_password'),
     url(r'^ChangePassword/', views.AgentChangePassword.as_view(), name='change_password'),
     url(r'^Agents/?', views.AgentsList.as_view()),
+    url(r'^AgentProfile/?', views.AgentProfile.as_view()),
     url(r'^Agent/', views.SingleAgent.as_view()),
     url(r'^AddClient/', views.AddClient.as_view()),
     url(r'^GetClient/', views.GetClient.as_view()),
