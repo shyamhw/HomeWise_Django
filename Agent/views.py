@@ -174,6 +174,15 @@ class SingleAgent(APIView):
         except Agent.DoesNotExist:
             return Response("Not an Agent", status=status.HTTP_400_BAD_REQUEST)
 
+class AgentProfile(APIView):
+    serializer_class = AgentSerializer
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        agent = request.user
+        serializer = AgentSerializer(agent)
+        return Response(serializer.data)
+
 
 class GetClient(APIView):
     permission_classes = (AllowAny,)
