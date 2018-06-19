@@ -109,7 +109,7 @@ EMAIL_HOST_PASSWORD = os.environ['SES_PASSWORD']
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_FROM_ADDRESS = 'visrut@protonmail.ch'
+EMAIL_FROM_ADDRESS = 'homewise@joinhomewise.com'
 
 
 # Password validation
