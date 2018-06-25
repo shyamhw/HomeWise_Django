@@ -122,6 +122,16 @@ class Client(models.Model):
     class Meta:
         ordering = ('created',)
 
+class VendorRegion(models.Model):
+    # Classify MLS regions in vendor regions
+    name = models.CharField(max_length=50, null=True, blank=True)
+
+class Tag(models.Model):
+    # Tags describe Vendors and Steps
+    name = models.CharField(max_length=150, null=True, blank=True, unique=True)
+    def __str__(self):
+        return 'Tag: ' + self.name
+
 class Step(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     ordering = models.IntegerField('ordering', null=True, blank=True)
@@ -129,7 +139,34 @@ class Step(models.Model):
     complete = models.BooleanField(default=False)
     agent_email = models.CharField(max_length=254, null=True, blank=True)
     date = models.DateField(null=True, blank=True)
+    tags = models.ManyToManyField(Tag)
 
     class Meta:
         ordering = ('date',)
+
+class MLSRegion(models.Model):
+    # Model MLS Region
+    short_name = models.CharField(max_length=30, null=True, blank=True)
+    long_name = models.CharField(max_length=100, null=True, blank=True)
+    office_location = models.CharField(max_length=100, null=True, blank=True)
+    vendor_region = models.ForeignKey(VendorRegion, on_delete=models.CASCADE)
+
+class Vendor(models.Model):
+    # Metadata
+    first_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    email = models.CharField(max_length=254, null=True, blank=True)
+    # Service info
+    tags = models.ManyToManyField(Tag)
+    long_description = models.CharField(max_length=300, null=True, blank=True)
+    # Geographic info
+    address = models.CharField(max_length=200, null=True, blank=True)
+    vendor_region = models.ForeignKey(VendorRegion, on_delete=models.CASCADE)
+    # Reputation info
+    prev_clients = models.ManyToManyField(Agent)
+    yelp_link = models.CharField(max_length=200, null=True, blank=True)
+    facebook_link = models.CharField(max_length=200, null=True, blank=True)
+    website_link = models.CharField(max_length=200, null=True, blank=True)
+
 
