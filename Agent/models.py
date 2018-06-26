@@ -126,6 +126,9 @@ class VendorRegion(models.Model):
     # Classify MLS regions in vendor regions
     name = models.CharField(max_length=50, null=True, blank=True)
 
+    def __str__(self):
+        return "Vendor Region: " + self.name
+
 class Tag(models.Model):
     # Tags describe Vendors and Steps
     name = models.CharField(max_length=150, null=True, blank=True, unique=True)
@@ -155,6 +158,7 @@ class Vendor(models.Model):
     # Metadata
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
+    company_name = models.CharField(max_length=150, null=True, blank=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     email = models.CharField(max_length=254, null=True, blank=True)
     # Service info
@@ -169,4 +173,7 @@ class Vendor(models.Model):
     facebook_link = models.CharField(max_length=200, null=True, blank=True)
     website_link = models.CharField(max_length=200, null=True, blank=True)
 
-
+    def __str__(self):
+        if self.company_name:
+            return "Vendor: " + self.company_name
+        return "Vendor: " + self.last_name + ", " + self.first_name
