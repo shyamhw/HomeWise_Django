@@ -3,6 +3,8 @@ from django.shortcuts import render
 from Agent.models import Agent
 from Agent.models import Client
 from Agent.models import Step
+from Agent.models import Vendor
+from Agent.models import VendorRegion
 from Agent.serializers import AgentSerializer
 from Agent.serializers import ClientSerializer
 from Agent.serializers import StepSerializer
@@ -25,6 +27,7 @@ from django.conf import settings
 from datetime import datetime
 import datetime as dt
 
+from django.db.models import Q
 
 ## Standard errors
 agentDNE = {'code': 0, 'message': 'No agent exists with this email address.'}
@@ -516,5 +519,49 @@ class AddStep(APIView):
 
 
 
+## Search vendors
+class VendorQuery(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def get(self, request):
+        ## Parse Tags
+        query_tags = []
+        if 'tags' in request.GET.keys():
+            raw_tags = request.GET['tags']
+            tag_list = raw_tags.split(",")
+            for tag in tag_list:
+                clean_tag = tag.strip().replace(" ", "_")
+                query_tags.append(clean_tag)
+
+        ## Parse Vendor Region
+        query_region = None
+        if 'region' in request.GET.keys():
+            param_region = request.GET['region']
+            query_region = VendorRegion(name=param_region)
+            print(query_region)
 
 
+        ## Build QuerySet
+        qset = Vendor.objects.all()
+        if query_region:
+            qset = qset.filter(vendor_region__name=query_region.name)
+        if len(query_tags) > 0:
+            for tag in query_tags:
+                qset = qset.filter(tags__name__contains=tag)
+        
+        ## Evaluate query
+        res = list(qset)
+
+        clientResponse = []
+
+        for r in res:
+            val = {
+                "id": r.id,
+                "name": r.company_name,
+                "address": r.address,
+                "region": r.vendor_region.name
+            }
+            clientResponse.append(val)
+
+        return Response(clientResponse)

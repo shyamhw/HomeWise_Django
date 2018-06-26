@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^ClientSteps/', views.ClientSteps.as_view()),
     url(r'^UpdateSteps/', views.UpdateSteps.as_view()),
     url(r'^AddStep/', views.AddStep.as_view()),
+    url(r'^Vendors/$', views.VendorQuery.as_view()),
 
 ]
 
