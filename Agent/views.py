@@ -382,6 +382,47 @@ class ClientSteps(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class SingleStep(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        agent = request.user
+        id = request.data.get('id')
+
+        try:
+            step = Step.objects.get(id=id)
+        except:
+            return Response("Not a Step", status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = StepSerializer(step)
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UpdateStep(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        agent = request.user
+        id = request.data.get('id')
+        name = request.data.get('name')
+        newDate = request.data.get('date')
+        date = datetime.strptime(newDate, '%m/%d/%Y')
+        complete = request.date.get('complete')
+
+        try:
+            step = Step.objects.get(id=id)
+        except:
+            return Response("Not a Step", status=status.HTTP_400_BAD_REQUEST)
+
+        step.complete = complete
+        step.name = name
+        step.date = date
+        step.save()
+        return Response("Updated Step", status=status.HTTP_200_OK)
+
 
 
 class RemoveClient(APIView):
