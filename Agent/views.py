@@ -5,6 +5,7 @@ from Agent.models import Client
 from Agent.models import Step
 from Agent.models import Vendor
 from Agent.models import VendorRegion
+from Agent.models import Tag
 from Agent.serializers import AgentSerializer
 from Agent.serializers import ClientSerializer
 from Agent.serializers import StepSerializer
@@ -534,6 +535,13 @@ class VendorQuery(APIView):
                 clean_tag = tag.strip().replace(" ", "_")
                 query_tags.append(clean_tag)
 
+        # if 'tagids' in request.GET.keys():
+        #     raw_tagids = request.GET['tags']
+        #     tag_list = raw_tagids.split(",")
+        #     for tagid in tag_list:
+        #         clean_tag_id = int(tag.strip())
+        #         clean_tag = Tag(pk=)
+
         ## Parse Vendor Region
         query_region = None
         if 'region' in request.GET.keys():
@@ -565,3 +573,10 @@ class VendorQuery(APIView):
             clientResponse.append(val)
 
         return Response(clientResponse)
+
+class VendorStepQuery(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        return Response('ha!')        

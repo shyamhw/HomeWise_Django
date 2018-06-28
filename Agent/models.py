@@ -2,6 +2,7 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import AbstractUser
 
 from django.utils import crypto
 
@@ -17,13 +18,50 @@ import logging
 from smtplib import SMTPException
 
 # Create your models here.
+
+class Role(models.Model):
+    AGENT  = 1
+    CLIENT = 2
+    VENDOR = 3
+    ROLE_CHOICES = (
+        (AGENT, 'agent'),
+        (CLIENT, 'client'),
+        (VENDOR, 'vendor'),
+    )
+
+    id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, primary_key=True)
+
+    def __str__(self):
+        return self.get_id_display()
+
+class VendorRegion(models.Model):
+    # Classify MLS regions in vendor regions
+    name = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return "Vendor Region: " + self.name
+
+class Tag(models.Model):
+    # Tags describe Vendors and Steps
+    name = models.CharField(max_length=150, null=True, blank=True, unique=True)
+    def __str__(self):
+        return 'Tag: ' + str(self.name)
+
+class MLSRegion(models.Model):
+    # Model MLS Region
+    short_name = models.CharField(max_length=30, null=True, blank=True)
+    long_name = models.CharField(max_length=100, null=True, blank=True)
+    office_location = models.CharField(max_length=100, null=True, blank=True)
+    vendor_region = models.ForeignKey(VendorRegion, on_delete=models.CASCADE)
+
+
 class Agent(AbstractBaseUser):
     email = models.CharField(max_length=254, unique=True)
-    username = models.CharField(max_length=254, unique=True, null=True, blank=True)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    ##username = models.CharField(max_length=254, unique=True, null=True, blank=True)
+    ##is_staff = models.BooleanField(default=False)
+    ##is_active = models.BooleanField(default=True)
 
-    last_login = models.DateField(blank=True, null=True)
+    ##last_login = models.DateField(blank=True, null=True)
     date_joined = models.DateField(blank=True, null=True)
 
     first_name = models.CharField(max_length=100, null=True, blank=True)
@@ -34,20 +72,24 @@ class Agent(AbstractBaseUser):
 
     temp_password = models.BooleanField(default=False)
 
-    objects = manager.CustomUserManager()
+    ##objects = manager.CustomUserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    ##USERNAME_FIELD = 'email'
+    ##REQUIRED_FIELDS = []
 
     class Meta:
         app_label = 'Agent'
         unique_together = (("mls_region", "mls_id"),)
 
     def get_full_name(self):
-        return self.first_name + " " + self.last_name
+        return str(self.first_name) + " " + str(self.last_name)
 
     def get_short_name(self):
         return self.first_name
+
+    def __str__(self):
+        return self.get_full_name() + " (" + self.email + ")"
+
     def has_perm(self, perm, obj=None):
         """
         Dummy compulsory method as the base class is AbstractBaseUser
@@ -59,6 +101,120 @@ class Agent(AbstractBaseUser):
         Dummy compulsory method as the base class is AbstractBaseUser
         """
         return True
+
+    # def reset_password(self):
+    #     """
+    #     Reset password to generated temp password
+    #     """
+
+    #     gen_password = crypto.get_random_string()
+    #     print("New password: " + gen_password)
+    #     logger = logging.getLogger('django')
+    #     logger.setLevel(logging.DEBUG)
+    #     try:
+    #         send_mail("Reset Password - HomeWise", "Here is your newly generated temporary password: " + gen_password, settings.EMAIL_FROM_ADDRESS, [self.email])
+    #         logger.info("SendMail successful!")
+    #     except SMTPException as e:
+    #         logger.info("SendMail Error: " + str(e))
+    #         return False
+    #     self.set_password(gen_password)
+    #     self.temp_password = True
+    #     self.save()
+    #     print(self.password)
+
+    #     return True
+
+    # def set_new_password(self, new_password):
+    #     """
+    #     Set password to new password
+    #     """
+
+    #     self.set_password(new_password)
+
+    #     ## Clear temporary password status
+    #     self.temp_password = False
+
+    #     ## Save user model
+    #     self.save()
+
+    #     ## TODO: Revoke all issued OAuth2 Tokens
+
+    #     return True
+
+
+class Client(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
+    email = models.CharField(max_length=254, unique=True)
+    first_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    client_type = models.CharField(max_length=1, null=True, blank=True)
+    address = models.CharField(max_length=100, null=True, blank=True)
+    city = models.CharField(max_length=30, null=True, blank=True)
+    state = models.CharField(max_length=2, null=True, blank=True)
+    zipcode = models.CharField(max_length=5, null=True, blank=True)
+    est_price = models.FloatField('est price', max_length=20, blank=True, null=True)
+    commission = models.FloatField('commission', max_length=3, blank=True, null=True)
+    commission_val = models.FloatField('commission val', max_length=20, blank=True, null=True)
+    total_steps = models.IntegerField('total steps', null=True, blank=True)
+    steps_complete = models.IntegerField('steps complete', null=True, blank=True)
+    steps_percentage = models.FloatField('steps_percentage', max_length=20, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('created',)
+
+    def __str__(self):
+        return "[Agent] " + str(self.agent) + ", [Client] " + self.first_name + " " + self.last_name
+
+    def getName(self):
+        return str(self.last_name) + ", " + str(self.first_name)
+
+class Step(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    ordering = models.IntegerField('ordering', null=True, blank=True)
+    name = models.CharField(max_length=60, null=True, blank=True)
+    complete = models.BooleanField(default=False)
+    agent_email = models.CharField(max_length=254, null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    tags = models.ManyToManyField(Tag)
+
+    class Meta:
+        ordering = ('date',)
+
+    def __str__(self):
+        return "[Client] " + str(self.client.getName()) + " - " + self.name
+
+class Vendor(models.Model):
+    # Metadata
+    first_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    company_name = models.CharField(max_length=150, null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    email = models.CharField(max_length=254, null=True, blank=True)
+    # Service info
+    tags = models.ManyToManyField(Tag)
+    long_description = models.CharField(max_length=300, null=True, blank=True)
+    # Geographic info
+    address = models.CharField(max_length=200, null=True, blank=True)
+    vendor_region = models.ForeignKey(VendorRegion, on_delete=models.CASCADE)
+    # Reputation info
+    prev_clients = models.ManyToManyField(Agent)
+    yelp_link = models.CharField(max_length=200, null=True, blank=True)
+    facebook_link = models.CharField(max_length=200, null=True, blank=True)
+    website_link = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        if self.company_name:
+            return "Vendor: " + self.company_name
+        return "Vendor: " + self.last_name + ", " + self.first_name
+
+
+class User(AbstractUser):
+    roles = models.ManyToManyField(Role)
+
+    ## Password management
+    temp_password = models.BooleanField(default=False)
 
     def reset_password(self):
         """
@@ -100,80 +256,4 @@ class Agent(AbstractBaseUser):
         return True
 
 
-class Client(models.Model):
-    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
-    email = models.CharField(max_length=254, unique=True)
-    first_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100, null=True, blank=True)
-    phone_number = models.CharField(max_length=15, null=True, blank=True)
-    client_type = models.CharField(max_length=1, null=True, blank=True)
-    address = models.CharField(max_length=100, null=True, blank=True)
-    city = models.CharField(max_length=30, null=True, blank=True)
-    state = models.CharField(max_length=2, null=True, blank=True)
-    zipcode = models.CharField(max_length=5, null=True, blank=True)
-    est_price = models.FloatField('est price', max_length=20, blank=True, null=True)
-    commission = models.FloatField('commission', max_length=3, blank=True, null=True)
-    commission_val = models.FloatField('commission val', max_length=20, blank=True, null=True)
-    total_steps = models.IntegerField('total steps', null=True, blank=True)
-    steps_complete = models.IntegerField('steps complete', null=True, blank=True)
-    steps_percentage = models.FloatField('steps_percentage', max_length=20, null=True, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ('created',)
-
-class VendorRegion(models.Model):
-    # Classify MLS regions in vendor regions
-    name = models.CharField(max_length=50, null=True, blank=True)
-
-    def __str__(self):
-        return "Vendor Region: " + self.name
-
-class Tag(models.Model):
-    # Tags describe Vendors and Steps
-    name = models.CharField(max_length=150, null=True, blank=True, unique=True)
-    def __str__(self):
-        return 'Tag: ' + self.name
-
-class Step(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
-    ordering = models.IntegerField('ordering', null=True, blank=True)
-    name = models.CharField(max_length=60, null=True, blank=True)
-    complete = models.BooleanField(default=False)
-    agent_email = models.CharField(max_length=254, null=True, blank=True)
-    date = models.DateField(null=True, blank=True)
-    tags = models.ManyToManyField(Tag)
-
-    class Meta:
-        ordering = ('date',)
-
-class MLSRegion(models.Model):
-    # Model MLS Region
-    short_name = models.CharField(max_length=30, null=True, blank=True)
-    long_name = models.CharField(max_length=100, null=True, blank=True)
-    office_location = models.CharField(max_length=100, null=True, blank=True)
-    vendor_region = models.ForeignKey(VendorRegion, on_delete=models.CASCADE)
-
-class Vendor(models.Model):
-    # Metadata
-    first_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100, null=True, blank=True)
-    company_name = models.CharField(max_length=150, null=True, blank=True)
-    phone_number = models.CharField(max_length=15, null=True, blank=True)
-    email = models.CharField(max_length=254, null=True, blank=True)
-    # Service info
-    tags = models.ManyToManyField(Tag)
-    long_description = models.CharField(max_length=300, null=True, blank=True)
-    # Geographic info
-    address = models.CharField(max_length=200, null=True, blank=True)
-    vendor_region = models.ForeignKey(VendorRegion, on_delete=models.CASCADE)
-    # Reputation info
-    prev_clients = models.ManyToManyField(Agent)
-    yelp_link = models.CharField(max_length=200, null=True, blank=True)
-    facebook_link = models.CharField(max_length=200, null=True, blank=True)
-    website_link = models.CharField(max_length=200, null=True, blank=True)
-
-    def __str__(self):
-        if self.company_name:
-            return "Vendor: " + self.company_name
-        return "Vendor: " + self.last_name + ", " + self.first_name
