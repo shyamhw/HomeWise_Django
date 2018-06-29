@@ -403,18 +403,38 @@ class SingleStep(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UpdateStep(APIView):
+class DeleteStep(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
         agent = request.user
         id = request.data.get('id')
+
+        try:
+            step = Step.objects.get(id=id)
+        except:
+            return Response("Not a Step", status=status.HTTP_400_BAD_REQUEST)
+
+        step.delete()
+        return Response("Step Deleted", status=status.HTTP_200_OK)
+
+
+
+
+class UpdateStep(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        agent = request.user
+        print('hi')
+        id = request.data.get('id')
         name = request.data.get('name')
+        complete = request.data.get('complete')
         newDate = request.data.get('date')
         date = datetime.strptime(newDate, '%m/%d/%Y')
-        complete = request.date.get('complete')
-
+        print(date)
         try:
             step = Step.objects.get(id=id)
         except:
@@ -544,7 +564,7 @@ class AddStep(APIView):
             return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
         new_total_steps = client.total_steps + 1
         new_steps_complete = client.steps_complete
-        new_steps_percentage = new_total_steps / new_steps_complete
+        new_steps_percentage = new_steps_complete / new_total_steps
         client.total_steps = new_total_steps
         client.steps_percentage = new_steps_percentage
         client.save()
