@@ -29,5 +29,5 @@ class StepSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Step
-        fields = ('id', 'client', 'ordering', 'name', 'complete', 'agent_email', 'date')
+        fields = ('id', 'client', 'ordering', 'name', 'complete', 'agent_email', 'date', 'tags')
 
