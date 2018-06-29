@@ -535,8 +535,6 @@ class AddStep(APIView):
         id = request.data.get('id')
         newStepName = request.data.get('newStepName')
         newStepDate = request.data.get('newStepDate')
-        total_steps = request.data.get('total_steps')
-        steps_percentage = request.data.get('steps_percentage')
         date = datetime.strptime(newStepDate, '%m/%d/%Y')
 
 
@@ -544,14 +542,17 @@ class AddStep(APIView):
             client = Client.objects.get(id=id)
         except:
             return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
-        client.total_steps = total_steps
-        client.steps_percentage = steps_percentage
+        new_total_steps = client.total_steps + 1
+        new_steps_complete = client.steps_complete
+        new_steps_percentage = new_total_steps / new_steps_complete
+        client.total_steps = new_total_steps
+        client.steps_percentage = new_steps_percentage
         client.save()
 
         try:
             c = Client.objects.get(id=id)
         except:
-            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Not a Client 2", status=status.HTTP_400_BAD_REQUEST)
 
         step = Step(client=c, ordering=1, name=newStepName, complete=False, agent_email=agent_email, date=date)
         step.save()
