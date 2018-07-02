@@ -202,9 +202,11 @@ class GetClient(APIView):
     authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
-        agent = request.user
+        user = request.user
         email = request.data.get('email')
         client_type = request.data.get('client_type')
+
+        agent = user.agent
 
         client = agent.client_set.filter(client_type=client_type).filter(email=email)
 
@@ -252,9 +254,8 @@ class AddClient(APIView):
             d = dt.date.today()
             today = d.strftime("%Y-%m-%d")
 
-
-
-            agent = request.user
+            user = request.user
+            agent = user.agent
             print(agent)
             client = agent.client_set.filter(email=email, client_type=client_type)
             print(client)
@@ -378,7 +379,8 @@ class ClientSteps(APIView):
     authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
-        agent = request.user
+        user = request.user
+        agent = user.agent
         email = request.data.get('email')
         client_type = request.data.get('client_type')
 
@@ -463,17 +465,15 @@ class RemoveClient(APIView):
     authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
-        agent = request.user
-        email = request.data.get('email')
-        client_type = request.data.get('client_type')
+        user = request.user
+        id = request.data.get('id')
 
         try:
-            client = agent.client_set.filter(email=email, client_type=client_type)
+            client = Client.objects.get(id=id)
             client.delete()
             return Response("Client deleted", status=status.HTTP_200_OK)
         except:
             return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
-
 
 
 
@@ -483,7 +483,8 @@ class ClientList(APIView):
     authentication_classes = [OAuth2Authentication]
 
     def get(self, request):
-        agent = request.user
+        user = request.user
+        agent = user.agent
         client_type = request.GET.get('client_type')
         clients = {}
         email = agent.email
