@@ -1,5 +1,6 @@
 from django.shortcuts import render
 
+from Agent.models import User
 from Agent.models import Agent
 from Agent.models import Client
 from Agent.models import Step
@@ -44,7 +45,15 @@ class AgentsList(APIView):
         serializer = AgentSerializer(agents, many=True)
         return Response(serializer.data)
 
+class AgentUserRegister(APIView):
+    """
+    Updated
+    Register an Agent with an associated User model.
+    """
+    permission_classes = (AllowAny,)    
 
+    def post(self, request):
+        return Response(None)
 
 class AgentRegister(APIView):
     """
@@ -55,13 +64,10 @@ class AgentRegister(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        print("hi")
         if serializer.is_valid():
             serializer.save()
-            print("bye")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        print("sup")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -84,8 +90,10 @@ class AgentLogin(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         try:
-            mls_agent = Agent.objects.get(email=email)
+            #mls_agent = Agent.objects.get(email=email)
+            mls_agent = User.objects.get(email=email)
         except Exception as e:
+            print(e)
             return Response(agentDNE, status=status.HTTP_404_NOT_FOUND)
             
         is_password_correct = mls_agent.check_password(password)
