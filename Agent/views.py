@@ -90,10 +90,8 @@ class AgentLogin(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         try:
-            #mls_agent = Agent.objects.get(email=email)
             mls_agent = User.objects.get(email=email)
         except Exception as e:
-            print(e)
             return Response(agentDNE, status=status.HTTP_404_NOT_FOUND)
             
         is_password_correct = mls_agent.check_password(password)
@@ -129,21 +127,24 @@ class AgentChangePassword(APIView):
         :return result of password change
         """
 
-        mls_agent = Agent.objects.get(email=request.data.get('email'))
-        
-        if not mls_agent:
-            return Response("not agent", status=status.HTTP_404_NOT_FOUND)
+        request_email = request.data.get('email')
 
-        is_password_correct = mls_agent.check_password(request.data.get('current_password'))
+        try:
+            user = User.objects.get(email=request_email)
+        except Exception as e:
+            return Response("No User found with this email address.", status=status.HTTP_404_NOT_FOUND)
+
+        is_password_correct = user.check_password(request.data.get('current_password'))
 
         if not is_password_correct:
             return Response("Incorrect password", status=status.HTTP_400_BAD_REQUEST)
 
         ## Set new password
-        result = mls_agent.set_new_password(request.data.get('new_password'))
+        request_new_password = request.data.get('new_password')
+        result = user.set_new_password(request_new_password)
 
         if result:
-            return Response("successfully changed password", status=status.HTTP_200_OK)
+            return Response("Successfully changed password.", status=status.HTTP_200_OK)
 
         return Response("error", status=status.HTTP_400_BAD_REQUEST)
         
