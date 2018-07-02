@@ -103,13 +103,13 @@ class User(AbstractBaseUser):
 	objects = HomeWiseUserManager()
 
 	def __str__(self):
-		return self.email
+		return str(self.email)
 
 	def get_full_name(self):
-		return self.first_name + " " + self.last_name
+		return str(self.first_name) + " " + str(self.last_name)
 
 	def get_short_name(self):
-		return self.email
+		return str(self.email)
 
 	def has_perm(self, perm, obj=None):
 		return True
