@@ -130,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'Agent.Agent'
+AUTH_USER_MODEL = 'Agent.User'
 
 
 # Internationalization
