@@ -159,12 +159,15 @@ class AgentForgotPassword(APIView):
         """
 
         email = request.data.get('email')
-        mls_agent = Agent.objects.get(email=email)
-        if not mls_agent:
+        user = User.objects.get(email=email)
+        if not user:
             return Response(agentDNE, status=status.HTTP_404_NOT_FOUND)
+        # mls_agent = Agent.objects.get(email=email)
+        # if not mls_agent:
+        #     return Response(agentDNE, status=status.HTTP_404_NOT_FOUND)
 
         ## Reset password
-        result = mls_agent.reset_password()
+        result = user.reset_password()
 
         if result:
             return Response("successfully reset password", status=status.HTTP_200_OK)
