@@ -420,6 +420,7 @@ class ClientSteps(APIView):
 
     def post(self, request):
         user = request.user
+        print(user)
         agent = user.agent
         email = request.data.get('email')
         client_type = request.data.get('client_type')
@@ -461,12 +462,30 @@ class DeleteStep(APIView):
 
     def post(self, request):
         agent = request.user
+        client_id = request.data.get('client_id')
         id = request.data.get('id')
+
+        try:
+            client = Client.objects.get(id=client_id)
+        except:
+            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             step = Step.objects.get(id=id)
         except:
             return Response("Not a Step", status=status.HTTP_400_BAD_REQUEST)
+
+        if(step.complete):
+            new_steps_complete = client.steps_complete - 1
+        else:
+            new_steps_complete = client.steps_complete
+
+        new_total_steps = client.total_steps - 1
+        new_steps_percentage = int(round((new_steps_complete / new_total_steps) * 100))
+        client.steps_complete = new_steps_complete
+        client.steps_percentage = new_steps_percentage
+        client.total_steps = new_total_steps
+        client.save()
 
         step.delete()
         return Response("Step Deleted", status=status.HTTP_200_OK)
@@ -479,8 +498,9 @@ class UpdateStep(APIView):
     authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
-        agent = request.user
+        user = request.user
         print('hi')
+        client_id = request.data.get('client_id')
         id = request.data.get('id')
         name = request.data.get('name')
         complete = request.data.get('complete')
@@ -488,9 +508,38 @@ class UpdateStep(APIView):
         date = datetime.strptime(newDate, '%m/%d/%Y')
         print(date)
         try:
+            client = Client.objects.get(id=client_id)
+        except:
+            return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
+
+        try:
             step = Step.objects.get(id=id)
         except:
             return Response("Not a Step", status=status.HTTP_400_BAD_REQUEST)
+
+        print(step.complete)
+        print(complete)
+
+        if(step.complete != complete):
+            print('here')
+            #if not currently completed and changing to complete
+            if(complete):
+                print('a')
+                new_steps_complete = client.steps_complete + 1
+                new_total_steps = client.total_steps
+                new_steps_percentage = int(round((new_steps_complete / new_total_steps) * 100))
+                client.steps_complete = new_steps_complete
+                client.steps_percentage = new_steps_percentage
+            #else if currently true and changing to not complete
+            else:
+                print('b')
+                new_steps_complete = client.steps_complete - 1
+                new_total_steps = client.total_steps
+                new_steps_percentage = int(round((new_steps_complete / new_total_steps) * 100))
+                client.steps_complete = new_steps_complete
+                client.steps_percentage = new_steps_percentage
+
+        client.save()
 
         step.complete = complete
         step.name = name
@@ -527,7 +576,6 @@ class ClientList(APIView):
         agent = user.agent
         client_type = request.GET.get('client_type')
         clients = {}
-        email = agent.email
         # clients = agent.client_set.all()
         if(client_type == 'B'):
             clients = agent.client_set.filter(client_type=client_type)
@@ -602,7 +650,7 @@ class AddStep(APIView):
     def post(self, request):
         agent = request.user
         print(agent)
-        agent_email = agent.email
+        agent_email = 'mo@gmail.com'
         id = request.data.get('id')
         newStepName = request.data.get('newStepName')
         newStepDate = request.data.get('newStepDate')
@@ -615,7 +663,7 @@ class AddStep(APIView):
             return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
         new_total_steps = client.total_steps + 1
         new_steps_complete = client.steps_complete
-        new_steps_percentage = new_steps_complete / new_total_steps
+        new_steps_percentage = int(round((new_steps_complete / new_total_steps) * 100))
         client.total_steps = new_total_steps
         client.steps_percentage = new_steps_percentage
         client.save()
