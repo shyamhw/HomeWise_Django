@@ -164,7 +164,8 @@ class Client(models.Model):
 	user = models.OneToOneField(
 		User,
 		on_delete=models.CASCADE,
-		null=True   
+		null=True,
+		blank=True
 	)
 
 	agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
@@ -213,7 +214,8 @@ class Vendor(models.Model):
 	user = models.OneToOneField(
 		User,
 		on_delete=models.CASCADE,
-		null=True   
+		null=True,
+		blank=True
 	)
 	# Metadata
 	first_name = models.CharField(max_length=100, null=True, blank=True)
