@@ -3,7 +3,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from Agent import views
 
 urlpatterns = [
-    url(r'^Registration/?', views.AgentRegister.as_view()),
+    url(r'^Registration/?', views.AgentUserRegister.as_view()),
     url(r'^Login/', views.AgentLogin.as_view(), name='login'),
     url(r'^ForgotPassword/', views.AgentForgotPassword.as_view(), name='forgot_password'),
     url(r'^ChangePassword/', views.AgentChangePassword.as_view(), name='change_password'),

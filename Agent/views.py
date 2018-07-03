@@ -53,7 +53,44 @@ class AgentUserRegister(APIView):
     permission_classes = (AllowAny,)    
 
     def post(self, request):
-        return Response(None)
+        """
+        :param first_name
+        :param last_name
+        :param email
+        :param password
+        :param mls_region
+        :param mls_id
+        :param birthday
+        """
+
+        required_fields = ['first_name', 'last_name', 'email', 'password', 'mls_region', 'mls_id']
+
+        print(request.data.keys())
+        print([elem in request.data.keys() for elem in required_fields])
+
+        if not all([elem in request.data.keys() for elem in required_fields]):
+            return Response("Required fields are missing.", status=status.HTTP_400_BAD_REQUEST)
+
+        ## Create User object
+        new_user = User(
+                first_name = request.data['first_name'],
+                last_name = request.data['last_name'],
+                email = request.data['email']
+            )
+        new_user.set_password(request.data['password'])
+        new_user.save()
+
+        ## Create Agent object
+        new_agent = Agent(
+                mls_id = request.data['mls_id'],
+                mls_region = request.data['mls_region']
+            )
+        if 'birthday' in request.data.keys():
+            new_agent.birthday = request.data['birthday']
+        new_agent.user = new_user
+        new_agent.save()
+
+        return Response("Successfully created agent", status=status.HTTP_201_CREATED)
 
 class AgentRegister(APIView):
     """
