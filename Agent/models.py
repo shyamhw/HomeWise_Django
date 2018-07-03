@@ -202,7 +202,8 @@ class Step(models.Model):
 	complete = models.BooleanField(default=False)
 	agent_email = models.CharField(max_length=254, null=True, blank=True)
 	date = models.DateField(null=True, blank=True)
-	tags = models.ManyToManyField(Tag)
+	notes = models.TextField(null=True, blank=True)
+	tags = models.ManyToManyField(Tag, blank=True)
 
 	class Meta:
 		ordering = ('date',)
