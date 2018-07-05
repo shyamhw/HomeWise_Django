@@ -64,32 +64,56 @@ class AgentUserRegister(APIView):
         :param birthday
         """
 
-        required_fields = ['first_name', 'last_name', 'email', 'password', 'mls_region', 'mls_id']
+        # required_fields = ['first_name', 'last_name', 'email', 'password', 'mls_region', 'mls_id']
+        #
+        # print(request.data.keys())
+        # print([elem in request.data.keys() for elem in required_fields])
 
-        print(request.data.keys())
-        print([elem in request.data.keys() for elem in required_fields])
+        # if not all([elem in request.data.keys() for elem in required_fields]):
+        #     return Response("Required fields are missing.", status=status.HTTP_400_BAD_REQUEST)
 
-        if not all([elem in request.data.keys() for elem in required_fields]):
-            return Response("Required fields are missing.", status=status.HTTP_400_BAD_REQUEST)
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password')
+        mls_id = request.data.get('mls_id')
+        mls_region = request.data.get('mls_region')
+        birthday = request.data.get('birthday')
+
+        birthday_temp = request.data.get('birthday')
+        birthday = datetime.strptime(birthday_temp, '%m/%d/%Y')
+
+        print(birthday)
+        print(email)
+        old_user = User.objects.filter(email=email)
+        old_agent = Agent.objects.filter(mls_region=mls_region, mls_id=mls_id)
+        if old_user or old_agent:
+            return Response("User exists", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            new_user = User(email=email, first_name=first_name, last_name=last_name)
+            new_user.set_password(password)
+            new_user.save()
+            new_agent = Agent(mls_id=mls_id, mls_region=mls_region, birthday=birthday, user=new_user)
+            new_agent.save()
 
         ## Create User object
-        new_user = User(
-                first_name = request.data['first_name'],
-                last_name = request.data['last_name'],
-                email = request.data['email']
-            )
-        new_user.set_password(request.data['password'])
-        new_user.save()
-
-        ## Create Agent object
-        new_agent = Agent(
-                mls_id = request.data['mls_id'],
-                mls_region = request.data['mls_region']
-            )
-        if 'birthday' in request.data.keys():
-            new_agent.birthday = request.data['birthday']
-        new_agent.user = new_user
-        new_agent.save()
+        # new_user = User(
+        #         first_name = request.data['first_name'],
+        #         last_name = request.data['last_name'],
+        #         email = request.data['email']
+        #     )
+        # new_user.set_password(request.data['password'])
+        # new_user.save()
+        #
+        # ## Create Agent object
+        # new_agent = Agent(
+        #         mls_id = request.data['mls_id'],
+        #         mls_region = request.data['mls_region']
+        #     )
+        # if 'birthday' in request.data.keys():
+        #     new_agent.birthday = request.data['birthday']
+        # new_agent.user = new_user
+        # new_agent.save()
 
         return Response("Successfully created agent", status=status.HTTP_201_CREATED)
 
