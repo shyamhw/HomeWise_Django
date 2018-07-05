@@ -25,12 +25,13 @@ class UserSerializer(serializers.ModelSerializer):
 class AgentSerializer(serializers.ModelSerializer):
     user = User()
 
-    password = serializers.CharField(write_only=True, required=True)
-    birthday = serializers.DateField(format="%m/%d/%Y", input_formats=['%m/%d/%Y'])
+    #password = serializers.CharField(write_only=True, required=True)
+    #birthday = serializers.DateField(format="%m/%d/%Y", input_formats=['%m/%d/%Y'])
 
     class Meta:
         model = Agent
-        fields = ('id', 'user', 'email', 'first_name', 'last_name', 'mls_region', 'mls_id', 'birthday', 'password')
+        #fields = ('id', 'user', 'email', 'first_name', 'last_name', 'mls_region', 'mls_id', 'birthday', 'password')
+        fields = ('id', 'user', 'mls_id', 'mls_region')
 
     def create(self, validated_data):
         return Agent.objects._create_user(**validated_data)

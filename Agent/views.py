@@ -10,6 +10,7 @@ from Agent.models import Tag
 from Agent.serializers import AgentSerializer
 from Agent.serializers import ClientSerializer
 from Agent.serializers import StepSerializer
+from Agent.serializers import UserSerializer
 
 from . import permissions
 
@@ -92,6 +93,8 @@ class AgentUserRegister(APIView):
 
         return Response("Successfully created agent", status=status.HTTP_201_CREATED)
 
+
+### DEPRECATED
 class AgentRegister(APIView):
     """
     Register a new user.
@@ -219,11 +222,21 @@ class SingleAgent(APIView):
 
         try:
             agent = Agent.objects.get(mls_region=mls_region, mls_id=mls_id)
-            agent_name = agent.first_name
+            agent_name = agent.user.first_name
             print(agent_name)
             serializer = AgentSerializer(agent)
             print(serializer.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+            structured_response = {
+                'first_name': str(agent.user.first_name),
+                'last_name': str(agent.user.last_name),
+                'email': str(agent.user.email),
+                'mls_region': str(agent.mls_region),
+                'mls_id': str(agent.mls_id)
+            }
+
+            ##return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(structured_response, status=status.HTTP_200_OK)
         except Agent.DoesNotExist:
             return Response("Not an Agent", status=status.HTTP_400_BAD_REQUEST)
 
@@ -232,9 +245,21 @@ class AgentProfile(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        agent = request.user
-        serializer = AgentSerializer(agent)
-        return Response(serializer.data)
+        user = request.user
+        ##serializer = UserSerializer(user)
+        ##agent_serializer = AgentSerializer(user.agent)
+        ##return Response(agent_serializer.data)
+
+        structured_response = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'mls_region': user.agent.mls_region,
+            'mls_id': user.agent.mls_id,
+            'id': user.id
+        }
+
+        return Response(structured_response, status=status.HTTP_200_OK)
 
 
 class GetClient(APIView):
