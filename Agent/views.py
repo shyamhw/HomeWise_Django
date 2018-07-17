@@ -117,6 +117,34 @@ class AgentUserRegister(APIView):
 
         return Response("Successfully created agent", status=status.HTTP_201_CREATED)
 
+class ClientUserRegister(APIView):
+
+    serializer_class = AgentSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password')
+
+        old_user = User.objects.filter(email=email)
+        if old_user:
+            return Response("User exists", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            new_user = User(email=email, first_name=first_name, last_name=last_name)
+            new_user.set_password(password)
+            new_user.save()
+            clients = Client.objects.filter(email=email)
+            for client in clients:
+                client.user = new_user
+                client.save()
+
+            return Response("Successfully created Client User", status=status.HTTP_201_CREATED)
+
+
+
+
 
 ### DEPRECATED
 class AgentRegister(APIView):
@@ -304,6 +332,22 @@ class GetClient(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class ClientGetClient(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        email = user.email
+
+        client = user.client
+        print(client)
+        serializer = ClientSerializer(client)
+        print(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class AddClient(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = [OAuth2Authentication]
@@ -479,6 +523,24 @@ class ClientSteps(APIView):
         except:
             return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
         client = clients[0]
+        steps = client.step_set.all().order_by('date')
+
+        serializer = StepSerializer(steps, many=True)
+        print('hi')
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ClientClientSteps(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        email = user.email
+
+        client = user.client
+
         steps = client.step_set.all().order_by('date')
 
         serializer = StepSerializer(steps, many=True)
