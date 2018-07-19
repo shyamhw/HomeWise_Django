@@ -149,6 +149,7 @@ class Agent(models.Model):
 
 	##first_name = models.CharField(max_length=100, null=True, blank=True)
 	##last_name = models.CharField(max_length=100, null=True, blank=True)
+	email = models.CharField(max_length=254, null=True, blank=True)
 	mls_region = models.CharField(max_length=254, null=True, blank=True)
 	mls_id = models.CharField(max_length=100, null=True, blank=True)
 	birthday = models.DateField(null=True, blank=True)
@@ -169,7 +170,7 @@ class Client(models.Model):
 	)
 
 	agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
-	email = models.CharField(max_length=254, unique=True)
+	email = models.CharField(max_length=254)
 	first_name = models.CharField(max_length=100, null=True, blank=True)
 	last_name = models.CharField(max_length=100, null=True, blank=True)
 	phone_number = models.CharField(max_length=15, null=True, blank=True)

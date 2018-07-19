@@ -36,6 +36,8 @@ from django.db.models import Q
 agentDNE = {'code': 0, 'message': 'No agent exists with this email address.'}
 agentBadPassword = {'code': 1, 'message': 'Incorrect password.'}
 agentTempPassword = {'code': 2, 'message': 'Agent has temporary password. Must change password immediately.'}
+clientDNE = {'code': 3, 'message': 'No client exists with this email address.'}
+vendorDNE = {'code': 4, 'message': 'No vendor exists with this email address.'}
 
 class AgentsList(APIView):
     serializer_class = AgentSerializer
@@ -93,7 +95,7 @@ class AgentUserRegister(APIView):
             new_user = User(email=email, first_name=first_name, last_name=last_name)
             new_user.set_password(password)
             new_user.save()
-            new_agent = Agent(mls_id=mls_id, mls_region=mls_region, birthday=birthday, user=new_user)
+            new_agent = Agent(email=email, mls_id=mls_id, mls_region=mls_region, birthday=birthday, user=new_user)
             new_agent.save()
 
         ## Create User object
@@ -116,6 +118,34 @@ class AgentUserRegister(APIView):
         # new_agent.save()
 
         return Response("Successfully created agent", status=status.HTTP_201_CREATED)
+
+class ClientUserRegister(APIView):
+
+    serializer_class = AgentSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password')
+
+        old_user = User.objects.filter(email=email)
+        if old_user:
+            return Response("User exists", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            new_user = User(email=email, first_name=first_name, last_name=last_name)
+            new_user.set_password(password)
+            new_user.save()
+            clients = Client.objects.filter(email=email)
+            for client in clients:
+                client.user = new_user
+                client.save()
+
+            return Response("Successfully created Client User", status=status.HTTP_201_CREATED)
+
+
+
 
 
 ### DEPRECATED
@@ -153,6 +183,24 @@ class AgentLogin(APIView):
 
         email = request.data.get('email')
         password = request.data.get('password')
+        user_type = request.data.get('user_type')
+
+        if user_type == 'client':
+            try:
+                client = Client.objects.get(email=email)
+            except Exception as e:
+                return Response(clientDNE, status=status.HTTP_404_NOT_FOUND)
+        elif user_type == 'vendor':
+            try:
+                vendor = Vendor.objects.get(email=email)
+            except Exception as e:
+                return Response(vendorDNE, status=status.HTTP_404_NOT_FOUND)
+        else:
+            try:
+                agent = Agent.objects.get(email=email)
+            except Exception as e:
+                return Response(agentDNE, status=status.HTTP_404_NOT_FOUND)
+
         try:
             mls_agent = User.objects.get(email=email)
         except Exception as e:
@@ -301,6 +349,22 @@ class GetClient(APIView):
 
         serializer = ClientSerializer(client, many=True)
         print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ClientGetClient(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        email = user.email
+
+        client = user.client
+        print(client)
+        serializer = ClientSerializer(client)
+        print(serializer.data)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -639,6 +703,24 @@ class ClientStepsNew(APIView):
         print('hi')
         print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ClientClientSteps(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        email = user.email
+
+        client = user.client
+
+        steps = client.step_set.all().order_by('date')
+
+        serializer = StepSerializer(steps, many=True)
+        print('hi')
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class SingleStep(APIView):
     permission_classes = (AllowAny,)
