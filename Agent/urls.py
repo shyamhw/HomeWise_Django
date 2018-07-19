@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^AgentProfile/?', views.AgentProfile.as_view()),
     url(r'^Agent/', views.SingleAgent.as_view()),
     url(r'^AddClient/', views.AddClient.as_view()),
+    url(r'^AddClientNew/', views.AddClientNew.as_view()),
     url(r'^GetClient/', views.GetClient.as_view()),
     url(r'^Clients/?', views.ClientList.as_view()),
     url(r'^UpcomingSteps/', views.UpcomingSteps.as_view()),

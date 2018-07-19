@@ -446,6 +446,137 @@ class AddClient(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
+
+class AddClientNew(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        agent_email = request.user.email
+        print(user)
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        phone_number = request.data.get('phone_number')
+        client_type = request.data.get('client_type')
+        address = request.data.get('address')
+        city = request.data.get('city')
+        state = request.data.get('state')
+        zipcode = request.data.get('zipcode')
+        est_price = request.data.get('est_price')
+        est_price = int(est_price)
+        print('Est price: ' + str(est_price))
+        commission = request.data.get('commission')
+        commission_val = est_price * (int(commission) / 100)
+        print(commission_val)
+        if (client_type == 'B'):
+            print('bbbb')
+            total_steps = 10
+        else:
+            print('cccc')
+            total_steps = 9
+        print(total_steps)
+        steps_complete = 0
+        print(steps_complete)
+        steps_percentage = (steps_complete / total_steps) * 100
+        print(steps_percentage)
+        d = dt.date.today()
+
+        user = request.user
+        agent = user.agent
+        print(agent)
+        client = agent.client_set.filter(email=email, client_type=client_type)
+        print(client)
+        if client:
+            return Response("Already a Client", status=status.HTTP_400_BAD_REQUEST)
+
+        c = Client(email=email, first_name=first_name, last_name=last_name, phone_number=phone_number,
+                   client_type=client_type, address=address, city=city, state=state, zipcode=zipcode,
+                   est_price=est_price,
+                   commission=commission, commission_val=commission_val, total_steps=total_steps,
+                   steps_complete=steps_complete, steps_percentage=steps_percentage, agent=agent)
+        c.save()
+
+        if (client_type == 'B'):
+            print('hi')
+            buyers_agreement = request.data.get('buyers_agreement')
+            buyers_agreement_format = datetime.strptime(buyers_agreement, '%m/%d/%Y')
+
+            offer_accepted = request.data.get('offer_accepted')
+            offer_accepted_format = datetime.strptime(offer_accepted, '%m/%d/%Y')
+
+            est_closing_date = request.data.get('est_closing_date')
+            est_closing_date_format = datetime.strptime(est_closing_date, '%m/%d/%Y')
+
+            step_one = Step(client=c, ordering=1, name="Buyer's Agreement", complete=False,
+                            agent_email=agent_email, date=buyers_agreement_format)
+            step_two = Step(client=c, ordering=2, name="Set up on MLS", complete=False, agent_email=agent_email)
+            step_three = Step(client=c, ordering=3, name="Mortgage Pre-Approval", complete=False,agent_email=agent_email)
+            step_four = Step(client=c, ordering=4, name="Offer Accepted", complete=False, agent_email=agent_email,
+                             date=offer_accepted_format)
+            step_five = Step(client=c, ordering=5, name="Deposit", complete=False, agent_email=agent_email)
+            step_six = Step(client=c, ordering=6, name="Inspection Deadline", complete=False, agent_email=agent_email)
+            step_seven = Step(client=c, ordering=7, name="Appraisal Deadline",complete=False, agent_email=agent_email)
+            step_eight = Step(client=c, ordering=8, name="Loan Deadline", complete=False,agent_email=agent_email)
+            step_nine = Step(client=c, ordering=9, name="Final Walkthrough", complete=False, agent_email=agent_email)
+            step_ten = Step(client=c, ordering=10, name="Estimated Closing Day", complete=False,
+                            agent_email=agent_email, date=est_closing_date_format)
+
+            step_one.save()
+            step_two.save()
+            step_three.save()
+            step_four.save()
+            step_five.save()
+            step_six.save()
+            step_seven.save()
+            step_eight.save()
+            step_nine.save()
+            step_ten.save()
+
+            return Response("client created", status=status.HTTP_201_CREATED)
+
+        else:
+            print('bye')
+            listing_date = request.data.get('listing_date')
+            listing_date_format = datetime.strptime(listing_date, '%m/%d/%Y')
+
+            offer_accepted = request.data.get('offer_accepted')
+            offer_accepted_format = datetime.strptime(offer_accepted, '%m/%d/%Y')
+
+            est_closing_date = request.data.get('est_closing_date')
+            est_closing_date_format = datetime.strptime(est_closing_date, '%m/%d/%Y')
+
+            step_one = Step(client=c, ordering=1, name="Staging", complete=False, agent_email=agent_email)
+            step_two = Step(client=c, ordering=2, name="Photo Shoot", complete=False, agent_email=agent_email)
+            step_three = Step(client=c, ordering=3, name="Listing Date", complete=False,
+                              agent_email=agent_email, date=listing_date_format)
+            step_four = Step(client=c, ordering=4, name="Open House", complete=False, agent_email=agent_email)
+            step_five = Step(client=c, ordering=5, name="Offer Accepted", complete=False,
+                             agent_email=agent_email, date=offer_accepted_format)
+            step_six = Step(client=c, ordering=6, name="Inspections Deadline", complete=False, agent_email=agent_email)
+            step_seven = Step(client=c, ordering=7, name="Reply to Inspections Deadline", complete=False,
+                              agent_email=agent_email)
+            step_eight = Step(client=c, ordering=8, name="Loan Deadline", complete=False, agent_email=agent_email)
+            step_nine = Step(client=c, ordering=9, name="Estimated Closing Day", complete=False, agent_email=agent_email,
+                             date=est_closing_date_format)
+
+            step_one.save()
+            step_two.save()
+            step_three.save()
+            step_four.save()
+            step_five.save()
+            step_six.save()
+            step_seven.save()
+            step_eight.save()
+            step_nine.save()
+
+            return Response("client created", status=status.HTTP_201_CREATED)
+
+        return Response("Client Add Failed", status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class UpcomingSteps(APIView):
 
     def get(self, request):
@@ -479,7 +610,7 @@ class ClientSteps(APIView):
         except:
             return Response("Not a Client", status=status.HTTP_400_BAD_REQUEST)
         client = clients[0]
-        steps = client.step_set.all().order_by('date')
+        steps = client.step_set.all().order_by('ordering', 'date')
 
         serializer = StepSerializer(steps, many=True)
         print('hi')
@@ -554,7 +685,12 @@ class UpdateStep(APIView):
         name = request.data.get('name')
         complete = request.data.get('complete')
         newDate = request.data.get('date')
-        date = datetime.strptime(newDate, '%m/%d/%Y')
+        print(newDate)
+        if newDate is None:
+            date = ''
+        else:
+            date = datetime.strptime(newDate, '%m/%d/%Y')
+
         print(date)
         try:
             client = Client.objects.get(id=client_id)
@@ -592,7 +728,9 @@ class UpdateStep(APIView):
 
         step.complete = complete
         step.name = name
-        step.date = date
+        if date != '':
+            print('here2')
+            step.date = date
         step.save()
         return Response("Updated Step", status=status.HTTP_200_OK)
 
