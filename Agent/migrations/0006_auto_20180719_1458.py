@@ -15,9 +15,4 @@ class Migration(migrations.Migration):
             name='email',
             field=models.CharField(blank=True, max_length=254, null=True),
         ),
-        migrations.AlterField(
-            model_name='client',
-            name='email',
-            field=models.CharField(max_length=254),
-        ),
     ]
