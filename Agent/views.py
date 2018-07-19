@@ -36,6 +36,8 @@ from django.db.models import Q
 agentDNE = {'code': 0, 'message': 'No agent exists with this email address.'}
 agentBadPassword = {'code': 1, 'message': 'Incorrect password.'}
 agentTempPassword = {'code': 2, 'message': 'Agent has temporary password. Must change password immediately.'}
+clientDNE = {'code': 3, 'message': 'No client exists with this email address.'}
+vendorDNE = {'code': 4, 'message': 'No vendor exists with this email address.'}
 
 class AgentsList(APIView):
     serializer_class = AgentSerializer
@@ -93,7 +95,7 @@ class AgentUserRegister(APIView):
             new_user = User(email=email, first_name=first_name, last_name=last_name)
             new_user.set_password(password)
             new_user.save()
-            new_agent = Agent(mls_id=mls_id, mls_region=mls_region, birthday=birthday, user=new_user)
+            new_agent = Agent(email=email, mls_id=mls_id, mls_region=mls_region, birthday=birthday, user=new_user)
             new_agent.save()
 
         ## Create User object
@@ -181,6 +183,24 @@ class AgentLogin(APIView):
 
         email = request.data.get('email')
         password = request.data.get('password')
+        user_type = request.data.get('user_type')
+
+        if user_type == 'client':
+            try:
+                client = Client.objects.get(email=email)
+            except Exception as e:
+                return Response(clientDNE, status=status.HTTP_404_NOT_FOUND)
+        elif user_type == 'vendor':
+            try:
+                vendor = Vendor.objects.get(email=email)
+            except Exception as e:
+                return Response(vendorDNE, status=status.HTTP_404_NOT_FOUND)
+        else:
+            try:
+                agent = Agent.objects.get(email=email)
+            except Exception as e:
+                return Response(agentDNE, status=status.HTTP_404_NOT_FOUND)
+
         try:
             mls_agent = User.objects.get(email=email)
         except Exception as e:
