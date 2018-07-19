@@ -185,12 +185,12 @@ class AgentLogin(APIView):
         password = request.data.get('password')
         user_type = request.data.get('user_type')
 
-        if user_type == 'client':
+        if user_type == 'Client':
             try:
                 client = Client.objects.get(email=email)
             except Exception as e:
                 return Response(clientDNE, status=status.HTTP_404_NOT_FOUND)
-        elif user_type == 'vendor':
+        elif user_type == 'Vendor':
             try:
                 vendor = Vendor.objects.get(email=email)
             except Exception as e:
