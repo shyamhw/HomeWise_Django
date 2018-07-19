@@ -685,7 +685,12 @@ class UpdateStep(APIView):
         name = request.data.get('name')
         complete = request.data.get('complete')
         newDate = request.data.get('date')
-        date = datetime.strptime(newDate, '%m/%d/%Y')
+        print(newDate)
+        if newDate is None:
+            date = ''
+        else:
+            date = datetime.strptime(newDate, '%m/%d/%Y')
+
         print(date)
         try:
             client = Client.objects.get(id=client_id)
@@ -723,7 +728,9 @@ class UpdateStep(APIView):
 
         step.complete = complete
         step.name = name
-        step.date = date
+        if date != '':
+            print('here2')
+            step.date = date
         step.save()
         return Response("Updated Step", status=status.HTTP_200_OK)
 
