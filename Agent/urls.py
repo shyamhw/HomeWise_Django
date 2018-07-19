@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^Clients/?', views.ClientList.as_view()),
     url(r'^UpcomingSteps/', views.UpcomingSteps.as_view()),
     url(r'^ClientSteps/', views.ClientSteps.as_view()),
+    url(r'^ClientStepsNew/', views.ClientStepsNew.as_view()),
     url(r'^SingleStep/', views.SingleStep.as_view()),
     url(r'^DeleteStep/', views.DeleteStep.as_view()),
     url(r'^UpdateStep/', views.UpdateStep.as_view()),
