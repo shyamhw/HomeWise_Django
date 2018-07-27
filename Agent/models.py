@@ -16,12 +16,13 @@ import logging
 
 from smtplib import SMTPException
 
-class VendorRegion(models.Model):
-	# Classify MLS regions in vendor regions
-	name = models.CharField(max_length=50, null=True, blank=True)
-
-	def __str__(self):
-		return "Vendor Region: " + self.name
+# class VendorRegion(models.Model):
+# 	# Classify MLS regions in vendor regions
+# 	name = models.CharField(max_length=50, null=True, blank=True)
+# 	mls_region = models.ManyToManyField(MLSRegion)
+#
+# 	def __str__(self):
+# 		return "Vendor Region: " + self.name
 
 class Tag(models.Model):
 	# Tags describe Vendors and Steps
@@ -31,10 +32,16 @@ class Tag(models.Model):
 
 class MLSRegion(models.Model):
 	# Model MLS Region
-	short_name = models.CharField(max_length=30, null=True, blank=True)
-	long_name = models.CharField(max_length=100, null=True, blank=True)
+	name = models.CharField(max_length=100, null=True, blank=True)
 	office_location = models.CharField(max_length=100, null=True, blank=True)
-	vendor_region = models.ForeignKey(VendorRegion, on_delete=models.CASCADE)
+
+class VendorRegion(models.Model):
+	# Classify MLS regions in vendor regions
+	name = models.CharField(max_length=50, null=True, blank=True)
+	mls_region = models.ManyToManyField(MLSRegion)
+
+	def __str__(self):
+		return "Vendor Region: " + self.name
 
 class Role(models.Model):
 	AGENT  = 1
@@ -186,6 +193,7 @@ class Client(models.Model):
 	steps_complete = models.IntegerField('steps complete', null=True, blank=True)
 	steps_percentage = models.FloatField('steps_percentage', max_length=20, null=True, blank=True)
 	created = models.DateTimeField(auto_now_add=True)
+	vendor_region = models.ForeignKey(VendorRegion, on_delete=models.SET_NULL, null=True, blank=True)
 
 	class Meta:
 		ordering = ('created',)
