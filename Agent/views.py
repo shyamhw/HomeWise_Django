@@ -6,10 +6,12 @@ from Agent.models import Client
 from Agent.models import Step
 from Agent.models import Vendor
 from Agent.models import VendorRegion
+from Agent.models import MLSRegion
 from Agent.models import Tag
 from Agent.serializers import AgentSerializer
 from Agent.serializers import ClientSerializer
 from Agent.serializers import StepSerializer
+from Agent.serializers import VendorRegionSerializer
 from Agent.serializers import UserSerializer
 
 from . import permissions
@@ -529,6 +531,7 @@ class AddClientNew(APIView):
         state = request.data.get('state')
         zipcode = request.data.get('zipcode')
         est_price = request.data.get('est_price')
+        vendor_region = request.data.get('vendor_region')
         est_price = int(est_price)
         print('Est price: ' + str(est_price))
         commission = request.data.get('commission')
@@ -559,7 +562,8 @@ class AddClientNew(APIView):
                    client_type=client_type, address=address, city=city, state=state, zipcode=zipcode,
                    est_price=est_price,
                    commission=commission, commission_val=commission_val, total_steps=total_steps,
-                   steps_complete=steps_complete, steps_percentage=steps_percentage, agent=agent)
+                   steps_complete=steps_complete, steps_percentage=steps_percentage, vendor_region=vendor_region,
+                   agent=agent)
         c.save()
 
         if (client_type == 'B'):
@@ -941,7 +945,7 @@ class AddStep(APIView):
     def post(self, request):
         agent = request.user
         print(agent)
-        agent_email = 'mo@gmail.com'
+        agent_email = request.user.email
         id = request.data.get('id')
         newStepName = request.data.get('newStepName')
         newStepDate = request.data.get('newStepDate')
@@ -1030,4 +1034,39 @@ class VendorStepQuery(APIView):
     authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
-        return Response('ha!')        
+        #get tags from response
+        tags = request.data.get('tags')
+
+
+        #get vendor_region from response
+        #build queryset by filtering all vendors based on region/tags
+        #build response
+        #return response
+        return Response('ha!')
+
+# Get VendorRegions for MLS of agent
+class GetVendorRegions(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        mls_region_name = user.agent.mls_region
+        print(mls_region_name)
+
+        mls_regions = MLSRegion.objects.all().filter(name=mls_region_name)
+        print(mls_regions[0])
+
+        mls_region = mls_regions[0]
+
+        vendor_regions_all = VendorRegion.objects.all()
+        print(vendor_regions_all)
+        vendor_regions = vendor_regions_all.filter(mls_region=mls_region)
+
+        serializer = VendorRegionSerializer(vendor_regions, many=True)
+        print(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
