@@ -43,7 +43,7 @@ class ClientSerializer(serializers.ModelSerializer):
         model = Client
         fields = ('id', 'email', 'first_name', 'last_name', 'phone_number', 'client_type', 'address', 'city',
                   'state', 'zipcode', 'est_price', 'commission', 'commission_val', 'total_steps', 'steps_complete',
-                  'steps_percentage')
+                  'steps_percentage', 'vendor_region')
 
 class StepSerializer(serializers.ModelSerializer):
     client = ClientSerializer()
@@ -57,4 +57,4 @@ class VendorRegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VendorRegion
-        fields = ('name', 'mls_region')
+        fields = ('id', 'name', 'mls_region')
