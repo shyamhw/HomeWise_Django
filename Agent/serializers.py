@@ -3,6 +3,7 @@ from Agent.models import User
 from Agent.models import Agent
 from Agent.models import Client
 from Agent.models import Step
+from Agent.models import Vendor
 from Agent.models import VendorRegion
 
 
@@ -52,6 +53,13 @@ class StepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Step
         fields = ('id', 'client', 'ordering', 'name', 'complete', 'agent_email', 'date', 'tags')
+
+class VendorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vendor
+        fields = ('id', 'first_name', 'last_name', 'company_name', 'phone_number', 'email', 'tags', 'address',
+                  'vendor_region', 'website_link')
 
 class VendorRegionSerializer(serializers.ModelSerializer):
 
