@@ -1043,16 +1043,17 @@ class VendorStepQuery(APIView):
         #get tags from response
         tags = request.data.get('tags')
         print(tags)
+        if len(tags) == 0:
+            return Response("No Vendors", status=status.HTTP_204_NO_CONTENT)
 
         vendors = Vendor.objects.all()
         print(vendors)
         vendors = vendors.filter(vendor_region=vendor_region)
         print('filter on vendor region')
         print(vendors)
-
-        if len(tags) > 0:
-            for tag in tags:
-                vendors = vendors.filter(tags=tag)
+        
+        for tag in tags:
+            vendors = vendors.filter(tags=tag)
 
         print('filter on tags too')
         print(vendors)
