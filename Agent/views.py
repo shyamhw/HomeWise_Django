@@ -11,6 +11,7 @@ from Agent.models import Tag
 from Agent.serializers import AgentSerializer
 from Agent.serializers import ClientSerializer
 from Agent.serializers import StepSerializer
+from Agent.serializers import VendorSerializer
 from Agent.serializers import VendorRegionSerializer
 from Agent.serializers import UserSerializer
 
@@ -1034,15 +1035,49 @@ class VendorStepQuery(APIView):
     authentication_classes = [OAuth2Authentication]
 
     def post(self, request):
+        user = request.user
+        # get vendor_region from response
+        vendor_region = request.data.get('vendor_region')
+
+
         #get tags from response
         tags = request.data.get('tags')
+        print(tags)
 
+        vendors = Vendor.objects.all()
+        print(vendors)
+        vendors = vendors.filter(vendor_region=vendor_region)
+        print('filter on vendor region')
+        print(vendors)
 
-        #get vendor_region from response
-        #build queryset by filtering all vendors based on region/tags
-        #build response
-        #return response
-        return Response('ha!')
+        if len(tags) > 0:
+            for tag in tags:
+                vendors = vendors.filter(tags=tag)
+
+        print('filter on tags too')
+        print(vendors)
+
+        serializer = VendorSerializer(vendors, many=True)
+        print(serializer.data)
+
+        # res = list(vendors)
+        # print(res)
+
+        # clientResponse = []
+        #
+        # for r in res:
+        #     val = {
+        #         "id": r.id,
+        #         "name": r.company_name,
+        #         "phone_number": r.phone_number,
+        #         "email"
+        #         "address": r.address,
+        #         "region": r.vendor_region.name
+        #     }
+        #     clientResponse.append(val)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # Get VendorRegions for MLS of agent
 class GetVendorRegions(APIView):
