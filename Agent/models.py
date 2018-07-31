@@ -35,6 +35,9 @@ class MLSRegion(models.Model):
 	name = models.CharField(max_length=100, null=True, blank=True)
 	office_location = models.CharField(max_length=100, null=True, blank=True)
 
+	def __str__(self):
+		return "MLS: " + self.name
+
 class VendorRegion(models.Model):
 	# Classify MLS regions in vendor regions
 	name = models.CharField(max_length=50, null=True, blank=True)
