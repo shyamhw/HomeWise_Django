@@ -163,6 +163,7 @@ class Agent(models.Model):
 	mls_region = models.CharField(max_length=254, null=True, blank=True)
 	mls_id = models.CharField(max_length=100, null=True, blank=True)
 	birthday = models.DateField(null=True, blank=True)
+	requested = models.BooleanField(default=False)
 
 	class Meta:
 		app_label = 'Agent'
