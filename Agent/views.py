@@ -1105,4 +1105,17 @@ class GetVendorRegions(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class RequestCity(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        agent = user.agent
+
+        agent.requested = True
+        agent.save()
+
+        return Response("City Requested", status=status.HTTP_200_OK)
+
 

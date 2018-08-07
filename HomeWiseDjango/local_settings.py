@@ -22,7 +22,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    'localhost'
+    'localhost',
+    'http://localhost:3000/'
 ]
 
 # HTTPS/SSL Settings
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'oauth2_provider',
     'rest_framework',
+    'corsheaders',
     'Agent',
 ]
 
@@ -56,6 +58,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -65,6 +68,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3000',
+)
 
 ROOT_URLCONF = 'HomeWiseDjango.urls'
 
@@ -158,26 +167,31 @@ REST_FRAMEWORK = {
     # )
 }
 
+OAUTH2_PROVIDER = {
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 31622400
+}
+
 # Agents API Application Settings
-OAUTH2_CLIENT_ID_AGENTS = 'q12ZP3x89JJdfPt74K6YBmdsuRgohIaD7Zrb5bot'
-OAUTH2_CLIENT_SECRET_AGENTS = 'dveNhnFK3ZEL40mavt1KrMMZ5gkNeO8HTgXp6qlq3ChoQGULtrvgreB9sLmLp2bMpr4W7OhSCOxMN3spNN9SHscJaqubGWueQRXcgezIhxdL7bzKc3rV6Ze4cP7zDtyW'
+OAUTH2_CLIENT_ID_AGENTS = 'u7z5kkdk4VtdJNtXovrgw5XJ8LRB2Q5daVQ4LYpU'
+OAUTH2_CLIENT_SECRET_AGENTS = 'ulR51iM5iIOwqd3mpUBfxnxnYEoVhg3gUolyr1VNQxI7XlYfLp1fOPNWeusQgH43OpAwzgTSuljSdPX9Y4SZwqy0iWdxcIlZohEwecPcbVp3Y3XyNvqe8Xms7TeylcTJ'
+
 
 # Django App Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR+'/django_debug.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': BASE_DIR+'/django_debug.log',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }

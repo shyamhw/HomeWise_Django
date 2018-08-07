@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^Vendors/StepSearch/', views.VendorQuery.as_view()),
     url(r'^GetVendors/', views.VendorStepQuery.as_view()),
     url(r'^VendorRegions/', views.GetVendorRegions.as_view()),
+    url(r'^RequestCity/', views.RequestCity.as_view()),
 
 ]
 
