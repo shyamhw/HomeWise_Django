@@ -1125,9 +1125,17 @@ class LatLong(APIView):
 
     def post(self, request):
         user = request.user
-        address = request.data.get('address')
+        street_number = request.data.get('street_number')
+        street_name = request.data.get('street_name')
+        city = request.data.get('city')
+        state = request.data.get('state')
+        zipcode = request.data.get('zipcode')
+        address = street_number + street_name + ',' + city + state + ',' + zipcode
         g = geocoder.google(address)
         print(g.latlng)
+        if g.latlng == "None":
+            g = geocoder.google(zipcode)
+            print(g.latlng)
 
         return Response("Latitude and Longitude Recieved", status=status.HTTP_200_OK)
 
