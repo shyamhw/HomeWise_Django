@@ -24,6 +24,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 
 import logging
+import geocoder
 
 import requests
 from oauth2_provider.contrib.rest_framework import OAuth2Authentication
@@ -1117,5 +1118,19 @@ class RequestCity(APIView):
         agent.save()
 
         return Response("City Requested", status=status.HTTP_200_OK)
+
+class LatLong(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = [OAuth2Authentication]
+
+    def post(self, request):
+        user = request.user
+        address = request.data.get('address')
+        g = geocoder.google(address)
+        print(g.latlng)
+
+        return Response("Latitude and Longitude Recieved", status=status.HTTP_200_OK)
+
+
 
 

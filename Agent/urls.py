@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^GetVendors/', views.VendorStepQuery.as_view()),
     url(r'^VendorRegions/', views.GetVendorRegions.as_view()),
     url(r'^RequestCity/', views.RequestCity.as_view()),
+    url(r'^LatLong/', views.LatLong.as_view()),
 
 ]
 
